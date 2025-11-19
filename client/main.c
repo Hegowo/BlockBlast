@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
         
         if(current_state == ST_MENU) {
             draw_text(font_L,"BLOCKBLAST V3",WINDOW_W/2,200,0xFFA500);
-            draw_button(120,400,300,60,"SOLO",COLOR_BTN); draw_button(120,500,300,60,"MULTI ONLINE",COLOR_BTN);
+            draw_button(120,400,300,60,"SOLO",COLOR_BTN); draw_button(120,500,300,60,"MULTIJOUEUR",COLOR_BTN);
         }
         else if(current_state == ST_LOGIN) {
             draw_text(font_L,"PSEUDO :",WINDOW_W/2,250,0xFFFFFF); fill_rect(100,300,340,60,COLOR_INPUT);
