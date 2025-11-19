@@ -14,7 +14,7 @@
 #define COLOR_BTN_HOVER 0x6A8FC5
 #define COLOR_BTN_DANGER 0xA54A4A
 #define COLOR_INPUT 0x2E2E3E
-#define COLOR_HIGHLIGHT 0x00FFFF
+#define COLOR_CYAN 0x00FFFF
 #define OFFSET_X 70
 #define OFFSET_Y 120
 
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
             draw_text(font_S,"JOUEURS :",WINDOW_W/2,250,0xFFFFFF);
             
             for(int i=0;i<current_lobby.player_count;i++) {
-                Uint32 col = (strcmp(current_lobby.players[i], my_pseudo) == 0) ? COLOR_HIGHLIGHT : 0xFFFFFF;
+                Uint32 col = (strcmp(current_lobby.players[i], my_pseudo) == 0) ? COLOR_CYAN : 0xFFFFFF;
                 draw_text(font_L, current_lobby.players[i], WINDOW_W/2, 300 + i*50, col);
             }
             
