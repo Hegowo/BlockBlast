@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 #include "game.h"
 #include "net_client.h"
 #include "../common/config.h"
@@ -13,6 +14,7 @@
 #define COLOR_BTN_HOVER 0x6A8FC5
 #define COLOR_BTN_DANGER 0xA54A4A
 #define COLOR_INPUT 0x2E2E3E
+#define COLOR_HIGHLIGHT 0x00FFFF
 #define OFFSET_X 70
 #define OFFSET_Y 120
 
@@ -24,7 +26,7 @@ GameState game;
 int current_state = ST_MENU;
 int mouse_x, mouse_y;
 int selected_piece_idx = -1; 
-char online_ip[32] = "127.0.0.1"; // IP PLUS TARD
+char online_ip[32] = "127.0.0.1"; // REMPLACER PAR IP VPS
 
 char my_pseudo[32] = "";
 char current_turn_pseudo[32] = ""; 
@@ -40,9 +42,7 @@ void fill_rect(int x, int y, int w, int h, Uint32 color) { SDL_Rect r={x,y,w,h};
 void draw_text(TTF_Font *f, const char* txt, int cx, int cy, Uint32 col_val) {
     if(!txt||!txt[0]) return;
     SDL_Color c={(Uint8)(col_val>>16),(Uint8)(col_val>>8),(Uint8)col_val};
-    
     SDL_Surface *s = TTF_RenderUTF8_Blended(f, txt, c);
-    
     if(s){
         SDL_Rect p={cx - s->w/2, cy - s->h/2, 0, 0}; 
         SDL_BlitSurface(s, NULL, screen, &p); 
@@ -71,22 +71,39 @@ void draw_popup() {
     draw_text(font_S, "(Cliquez pour fermer)", WINDOW_W/2, WINDOW_H/2 + 50, 0xAAAAAA);
 }
 
+void handle_input_char(Uint16 unicode) {
+    char c = (char)unicode;
+    int len = strlen(input_buffer);
+
+    if (c == 8) {
+        if (len > 0) input_buffer[len-1] = 0;
+        return;
+    }
+
+    if (len < 12) {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ' ') {
+            
+            if(current_state == ST_JOIN_INPUT && c >= 'a' && c <= 'z') {
+                c = c - 32;
+            }
+
+            input_buffer[len] = c;
+            input_buffer[len+1] = 0;
+        }
+    }
+}
+
+// --- LOGIQUE ---
 int is_my_turn() {
     return (strcmp(my_pseudo, current_turn_pseudo) == 0);
 }
 
-void handle_input_char(SDL_keysym k) {
-    int len = strlen(input_buffer);
-    if(k.sym==SDLK_BACKSPACE && len>0) input_buffer[len-1]=0;
-    else if(len<12 && ((k.sym>='a'&&k.sym<='z')||(k.sym>='0'&&k.sym<='9')||k.sym==SDLK_SPACE)) { 
-        input_buffer[len]=k.sym; input_buffer[len+1]=0; 
-    }
-}
-
 int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO); TTF_Init();
+    SDL_EnableUNICODE(1); 
+
     screen = SDL_SetVideoMode(WINDOW_W, WINDOW_H, 32, SDL_SWSURFACE);
-    SDL_WM_SetCaption("BlockBlast V3.2 (UTF8)", NULL);
+    SDL_WM_SetCaption("BlockBlast V3.3", NULL);
     font_L=TTF_OpenFont("assets/font.ttf", 40); font_S=TTF_OpenFont("assets/font.ttf", 22);
     if(!font_L) return 1;
 
@@ -128,7 +145,10 @@ int main(int argc, char *argv[]) {
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running=0;
             if(e.type == SDL_MOUSEMOTION) { mouse_x=e.motion.x; mouse_y=e.motion.y; }
-            if(e.type == SDL_KEYDOWN && (current_state==ST_LOGIN || current_state==ST_JOIN_INPUT)) handle_input_char(e.key.keysym);
+            
+            if(e.type == SDL_KEYDOWN && (current_state==ST_LOGIN || current_state==ST_JOIN_INPUT)) {
+                handle_input_char(e.key.keysym.unicode);
+            }
 
             if(e.type == SDL_MOUSEBUTTONUP) {
                 if(strlen(popup_msg) > 0) { popup_msg[0] = 0; continue; }
@@ -153,7 +173,7 @@ int main(int argc, char *argv[]) {
                     else if(current_state == ST_JOIN_INPUT && mouse_y>500) {
                          if(strlen(input_buffer)==4) {
                              Packet p; memset(&p,0,sizeof(Packet)); p.type=MSG_JOIN_ROOM;
-                             for(int i=0;i<4;i++) p.text[i]=(input_buffer[i]>='a'&&input_buffer[i]<='z')?input_buffer[i]-32:input_buffer[i];
+                             strcpy(p.text, input_buffer); 
                              net_send(&p);
                          }
                     }
@@ -232,7 +252,10 @@ int main(int argc, char *argv[]) {
             
             draw_text(font_S,"JOUEURS :",WINDOW_W/2,250,0xFFFFFF);
             
-            for(int i=0;i<current_lobby.player_count;i++) draw_text(font_L,current_lobby.players[i],WINDOW_W/2,300+i*50,0xFFFFFF);
+            for(int i=0;i<current_lobby.player_count;i++) {
+                Uint32 col = (strcmp(current_lobby.players[i], my_pseudo) == 0) ? COLOR_HIGHLIGHT : 0xFFFFFF;
+                draw_text(font_L, current_lobby.players[i], WINDOW_W/2, 300 + i*50, col);
+            }
             
             if(current_lobby.is_host) draw_button(120,700,300,60,"LANCER",COLOR_BTN);
             else draw_text(font_S,"En attente...",WINDOW_W/2,700,0x888888);
