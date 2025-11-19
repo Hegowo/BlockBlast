@@ -13,7 +13,7 @@ fi
 echo "--------------------------------"
 
 echo ">>> Compilation du CLIENT (Jeu)..."
-# Note: On inclut les chemins SDL que nous avons utilisés précédemment
+
 gcc -std=c99 \
     -I"C:/msys64/mingw64/include/SDL" \
     -L"C:/msys64/mingw64/lib" \
