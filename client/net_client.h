@@ -3,7 +3,6 @@
 
 #include "../common/net_protocol.h"
 
-// Adaptation Windows / Linux
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>

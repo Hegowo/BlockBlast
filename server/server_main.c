@@ -32,7 +32,7 @@ typedef struct {
     int active;
     int game_running;
     int timer_minutes;
-    int current_turn; // Index (0-3) du joueur qui doit jouer
+    int current_turn;
     int grid[GRID_H][GRID_W];
 } Room;
 
@@ -46,7 +46,6 @@ typedef struct {
 Client clients[MAX_CLIENTS];
 Room rooms[MAX_ROOMS];
 
-// --- LEADERBOARD INTELLIGENT (Gardez le meilleur score) ---
 typedef struct { char n[32]; int s; } LEntry;
 
 void save_score(const char* name, int score) {
@@ -54,12 +53,10 @@ void save_score(const char* name, int score) {
     int count = 0;
     int found = 0;
 
-    // 1. Lire tout le fichier
     FILE *f = fopen("leaderboard.txt", "r");
     if(f) {
         while(count < 100 && fscanf(f, "%s %d", entries[count].n, &entries[count].s) == 2) {
             if(strcmp(entries[count].n, name) == 0) {
-                // Si joueur existe déjà, on garde le max
                 if(score > entries[count].s) entries[count].s = score;
                 found = 1;
             }
@@ -68,14 +65,12 @@ void save_score(const char* name, int score) {
         fclose(f);
     }
 
-    // 2. Si nouveau joueur, ajouter
     if(!found && count < 100) {
         strncpy(entries[count].n, name, 31);
         entries[count].s = score;
         count++;
     }
 
-    // 3. Réécrire tout le fichier proprement
     f = fopen("leaderboard.txt", "w");
     if(f) {
         for(int i=0; i<count; i++) fprintf(f, "%s %d\n", entries[i].n, entries[i].s);
@@ -83,7 +78,6 @@ void save_score(const char* name, int score) {
     }
 }
 
-// (Lecture leaderboard inchangée, je la remets pour compilation)
 void get_leaderboard(LeaderboardData *lb) {
     lb->count = 0;
     LEntry entries[100];
@@ -93,7 +87,6 @@ void get_leaderboard(LeaderboardData *lb) {
         while(count < 100 && fscanf(f, "%s %d", entries[count].n, &entries[count].s) == 2) count++;
         fclose(f);
     }
-    // Tri simple
     for(int i=0; i<count-1; i++) for(int j=0; j<count-i-1; j++) {
         if(entries[j].s < entries[j+1].s) { LEntry t = entries[j]; entries[j]=entries[j+1]; entries[j+1]=t; }
     }
@@ -103,7 +96,6 @@ void get_leaderboard(LeaderboardData *lb) {
     }
 }
 
-// --- OUTILS ---
 void generate_code(char *dest) {
     const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     for(int i=0; i<4; i++) dest[i] = charset[rand() % 36];
@@ -137,7 +129,6 @@ void broadcast_game(int room_idx, Packet *p) {
     }
 }
 
-// --- MAIN ---
 int main() {
     #ifdef _WIN32
     WSADATA wsaData; WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -157,7 +148,7 @@ int main() {
     bind(server_fd, (struct sockaddr *)&address, sizeof(address));
     listen(server_fd, 5);
 
-    printf("SERVER V3 READY PORT %d\n", PORT);
+    printf("SERVER PRET AU PORT %d\n", PORT);
 
     while(1) {
         FD_ZERO(&readfds); FD_SET(server_fd, &readfds);
@@ -166,7 +157,6 @@ int main() {
 
         if(select((int)max_sd+1, &readfds, NULL, NULL, NULL) < 0) continue;
 
-        // Nouvelle connexion
         if(FD_ISSET(server_fd, &readfds)) {
             int addrlen = sizeof(address);
             if((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) != INVALID_SOCKET) {
@@ -177,41 +167,32 @@ int main() {
             }
         }
 
-        // Gestion Clients
         for(int i=0; i<MAX_CLIENTS; i++) {
             if(clients[i].active && FD_ISSET(clients[i].socket, &readfds)) {
                 Packet pkt;
                 int val = recv(clients[i].socket, (char*)&pkt, sizeof(Packet), 0);
                 
                 if(val <= 0) {
-                    // -- DÉCONNEXION --
                     printf("Client %d disconnected\n", i);
                     int rid = clients[i].room_idx;
                     if(rid != -1 && rooms[rid].active) {
-                        // Retirer le joueur de la liste des IDs
                         int pos = -1;
                         for(int k=0; k<rooms[rid].count; k++) if(rooms[rid].client_ids[k] == i) pos = k;
                         
                         if(pos != -1) {
-                            // Décaler le tableau
                             for(int k=pos; k<rooms[rid].count-1; k++) rooms[rid].client_ids[k] = rooms[rid].client_ids[k+1];
                             rooms[rid].count--;
                         }
 
-                        // Si le jeu était en cours et qu'il reste moins de 2 joueurs (ou 1 seul en solo ?)
-                        // On annule la partie pour les survivants
                         if(rooms[rid].game_running && rooms[rid].count > 0) {
                             Packet cancel; memset(&cancel,0,sizeof(Packet));
                             cancel.type = MSG_GAME_CANCELLED;
                             sprintf(cancel.text, "%s s'est deconnecte.", clients[i].pseudo);
                             broadcast_game(rid, &cancel);
                             
-                            // Reset la salle
                             rooms[rid].game_running = 0;
-                            // On ne détruit pas la salle, on les renvoie au lobby (géré par le client)
                         }
                         
-                        // Si la salle est vide ou si c'était l'hôte, on ferme
                         if(rooms[rid].count == 0 || rooms[rid].host_id == i) {
                             rooms[rid].active = 0;
                         } else {
@@ -252,7 +233,6 @@ int main() {
                     }
                     
                     else if(pkt.type == MSG_KICK_PLAYER) {
-                        // L'hôte veut virer quelqu'un (pseudo dans pkt.text)
                         int rid = clients[i].room_idx;
                         if(rid != -1 && rooms[rid].host_id == i) {
                             int target_id = -1;
@@ -265,16 +245,13 @@ int main() {
                             }
                             
                             if(target_id != -1) {
-                                // Notifier l'expulsé
                                 Packet k; memset(&k,0,sizeof(Packet)); k.type=MSG_KICKED;
                                 send(clients[target_id].socket, (char*)&k, sizeof(Packet), 0);
                                 
-                                // Retirer de la salle
-                                clients[target_id].room_idx = -1; // Retour menu
+                                clients[target_id].room_idx = -1;
                                 for(int k=target_pos; k<rooms[rid].count-1; k++) rooms[rid].client_ids[k] = rooms[rid].client_ids[k+1];
                                 rooms[rid].count--;
                                 
-                                // Notifier les autres
                                 send_room_update(rid);
                             }
                         }
@@ -284,10 +261,9 @@ int main() {
                         int rid = clients[i].room_idx;
                         if(rid != -1 && rooms[rid].host_id == i) {
                             rooms[rid].game_running=1;
-                            rooms[rid].current_turn = 0; // Le joueur 0 (hôte) commence
+                            rooms[rid].current_turn = 0;
                             Packet p; memset(&p,0,sizeof(Packet)); p.type=MSG_START_GAME;
                             memcpy(p.grid_data, rooms[rid].grid, sizeof(rooms[rid].grid));
-                            // On dit à tout le monde que c'est à Host de jouer
                             strcpy(p.turn_pseudo, clients[rooms[rid].client_ids[0]].pseudo);
                             broadcast_game(rid, &p);
                         }
@@ -296,15 +272,12 @@ int main() {
                     else if(pkt.type == MSG_PLACE_PIECE) {
                         int rid = clients[i].room_idx;
                         if(rid != -1 && rooms[rid].game_running) {
-                            // Vérifier si c'est bien son tour
                             int current_player_id = rooms[rid].client_ids[rooms[rid].current_turn];
                             
                             if(current_player_id == i) {
-                                // Coup valide
                                 memcpy(rooms[rid].grid, pkt.grid_data, sizeof(rooms[rid].grid));
                                 save_score(clients[i].pseudo, pkt.score);
                                 
-                                // Passer au tour suivant
                                 rooms[rid].current_turn = (rooms[rid].current_turn + 1) % rooms[rid].count;
                                 int next_player_id = rooms[rid].client_ids[rooms[rid].current_turn];
                                 

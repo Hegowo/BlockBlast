@@ -13,13 +13,13 @@ typedef enum {
     MSG_CREATE_ROOM,
     MSG_JOIN_ROOM,
     MSG_ROOM_UPDATE,
-    MSG_KICK_PLAYER,     // Hôte demande exclusion
-    MSG_KICKED,          // Serveur dit au joueur "T'es viré"
+    MSG_KICK_PLAYER,
+    MSG_KICKED,
     MSG_START_GAME,
     MSG_UPDATE_GRID,
     MSG_PLACE_PIECE,
     MSG_GAME_OVER,
-    MSG_GAME_CANCELLED,  // Si un joueur part
+    MSG_GAME_CANCELLED,
     MSG_ERROR
 } MsgType;
 
@@ -46,7 +46,7 @@ typedef struct {
     
     int grid_data[GRID_H][GRID_W]; 
     int score;
-    char turn_pseudo[32]; // Pseudo du joueur dont c'est le tour
+    char turn_pseudo[32];
     
     LobbyState lobby;
     LeaderboardData lb;

@@ -7,7 +7,6 @@
 SOCKET sock = INVALID_SOCKET;
 
 int net_connect(const char *ip) {
-    // Si déjà connecté, on renvoie OK direct
     if (sock != INVALID_SOCKET) return 1;
 
     #ifdef _WIN32
@@ -29,7 +28,6 @@ int net_connect(const char *ip) {
         return 0;
     }
     
-    // Mode Non-Bloquant
     #ifdef _WIN32
         unsigned long mode = 1;
         ioctlsocket(sock, FIONBIO, &mode);
@@ -50,7 +48,6 @@ void net_send(Packet *pkt) {
 int net_receive(Packet *pkt) {
     if (sock == INVALID_SOCKET) return 0;
     
-    // On s'assure que la mémoire est propre
     memset(pkt, 0, sizeof(Packet));
     
     int len = recv(sock, (char*)pkt, sizeof(Packet), 0);

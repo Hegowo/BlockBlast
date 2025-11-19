@@ -8,7 +8,6 @@
 #include "../common/config.h"
 #include "../common/net_protocol.h"
 
-// UI COLORS
 #define COLOR_BG 0x1E1E2E 
 #define COLOR_BTN 0x4A6FA5
 #define COLOR_BTN_HOVER 0x6A8FC5
@@ -25,7 +24,7 @@ GameState game;
 int current_state = ST_MENU;
 int mouse_x, mouse_y;
 int selected_piece_idx = -1; 
-char online_ip[32] = "127.0.0.1"; // METS TON IP VPS ICI
+char online_ip[32] = "127.0.0.1"; // IP PLUS TARD
 
 char my_pseudo[32] = "";
 char current_turn_pseudo[32] = ""; 
@@ -35,16 +34,13 @@ char popup_msg[128] = "";
 LobbyState current_lobby;
 LeaderboardData leaderboard;
 
-// --- DRAW UTILS ---
 Uint32 get_pixel(int r, int g, int b) { return SDL_MapRGB(screen->format, r, g, b); }
 void fill_rect(int x, int y, int w, int h, Uint32 color) { SDL_Rect r={x,y,w,h}; SDL_FillRect(screen,&r,color); }
 
-// CORRECTION ACCENTS ICI : On utilise TTF_RenderUTF8_Blended
 void draw_text(TTF_Font *f, const char* txt, int cx, int cy, Uint32 col_val) {
     if(!txt||!txt[0]) return;
     SDL_Color c={(Uint8)(col_val>>16),(Uint8)(col_val>>8),(Uint8)col_val};
     
-    // C'est cette fonction qui permet d'afficher les accents correctement
     SDL_Surface *s = TTF_RenderUTF8_Blended(f, txt, c);
     
     if(s){
@@ -75,7 +71,6 @@ void draw_popup() {
     draw_text(font_S, "(Cliquez pour fermer)", WINDOW_W/2, WINDOW_H/2 + 50, 0xAAAAAA);
 }
 
-// --- LOGIQUE ---
 int is_my_turn() {
     return (strcmp(my_pseudo, current_turn_pseudo) == 0);
 }
@@ -83,7 +78,6 @@ int is_my_turn() {
 void handle_input_char(SDL_keysym k) {
     int len = strlen(input_buffer);
     if(k.sym==SDLK_BACKSPACE && len>0) input_buffer[len-1]=0;
-    // On autorise a-z, 0-9 et l'espace
     else if(len<12 && ((k.sym>='a'&&k.sym<='z')||(k.sym>='0'&&k.sym<='9')||k.sym==SDLK_SPACE)) { 
         input_buffer[len]=k.sym; input_buffer[len+1]=0; 
     }
@@ -189,7 +183,6 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 
-                // CLIC DROIT
                 if(e.button.button == SDL_BUTTON_RIGHT && current_state == ST_LOBBY && current_lobby.is_host) {
                     for(int i=0; i<current_lobby.player_count; i++) {
                         int center_y = 300 + i*50;
@@ -205,7 +198,6 @@ int main(int argc, char *argv[]) {
                 }
             }
             
-            // DRAG
             if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
                  if(current_state == ST_SOLO || (current_state == ST_MULTI_GAME && is_my_turn())) {
                     for(int i=0;i<3;i++) if(game.pieces_available[i]) {
