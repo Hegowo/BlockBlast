@@ -6,7 +6,7 @@
 
 SOCKET sock = INVALID_SOCKET;
 
-int net_connect(const char *ip) {
+int net_connect(const char *ip, int port) {
     if (sock != INVALID_SOCKET) return 1;
 
     #ifdef _WIN32
@@ -19,7 +19,7 @@ int net_connect(const char *ip) {
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) return 0;
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(port);
     
     if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) return 0;
 
@@ -47,9 +47,7 @@ void net_send(Packet *pkt) {
 
 int net_receive(Packet *pkt) {
     if (sock == INVALID_SOCKET) return 0;
-    
     memset(pkt, 0, sizeof(Packet));
-    
     int len = recv(sock, (char*)pkt, sizeof(Packet), 0);
     if (len > 0) return 1;
     return 0;

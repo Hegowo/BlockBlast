@@ -17,7 +17,7 @@
     typedef int SOCKET;
 #endif
 
-int net_connect(const char *ip);
+int net_connect(const char *ip, int port);
 void net_send(Packet *pkt);
 int net_receive(Packet *pkt);
 void net_close();
