@@ -3,23 +3,20 @@
 
 #include "../common/net_protocol.h"
 
-#ifdef _WIN32
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-#else
-    #include <sys/socket.h>
-    #include <arpa/inet.h>
-    #include <unistd.h>
-    #include <netdb.h>
-    #define INVALID_SOCKET -1
-    #define SOCKET_ERROR -1
-    #define closesocket close
-    typedef int SOCKET;
-#endif
+/* Connect to server */
+int net_connect(const char *ip, int port);
 
-int net_connect(const char *ip);
+/* Send packet to server */
 void net_send(Packet *pkt);
+
+/* Receive packet from server (non-blocking) */
 int net_receive(Packet *pkt);
-void net_close();
+
+/* Close connection */
+void net_close(void);
+
+/* Check if connected */
+int net_is_connected(void);
 
 #endif
+

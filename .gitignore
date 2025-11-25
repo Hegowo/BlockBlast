@@ -3,3 +3,5 @@ blockblast.exe
 leaderboard.txt
 later
 .gitignore
+/bin/
+build.sh
