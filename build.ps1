@@ -56,6 +56,7 @@ $clientArgs = @(
     "-lSDL"
     "-lSDL_ttf"
     "-lws2_32"
+    "-mwindows"
 ) | Where-Object { $_ -ne "" }
 
 $clientResult = & gcc @clientArgs 2>&1

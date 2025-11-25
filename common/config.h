@@ -29,10 +29,25 @@
 #define COLOR_ORANGE    0xFF8C00
 #define COLOR_WHITE     0xFFFFFF
 #define COLOR_GREY      0x888888
+#define COLOR_GOLD      0xFFD700
+#define COLOR_PURPLE    0x9B59B6
+#define COLOR_PANEL     0x252535
 
 /* Grid offset for centering */
 #define GRID_OFFSET_X ((WINDOW_W - GRID_W * BLOCK_SIZE) / 2)
 #define GRID_OFFSET_Y 80
+
+/* Game modes */
+#define GAME_MODE_CLASSIC 0
+#define GAME_MODE_RUSH    1
+
+/* Visual effect types */
+#define EFFECT_NONE       0
+#define EFFECT_PLACE      1
+#define EFFECT_LINE_CLEAR 2
+
+/* Maximum effect particles */
+#define MAX_PARTICLES 100
 
 #endif
 

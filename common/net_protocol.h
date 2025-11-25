@@ -18,8 +18,44 @@ typedef enum {
     MSG_PLACE_PIECE,
     MSG_GAME_OVER,
     MSG_GAME_CANCELLED,
-    MSG_ERROR
+    MSG_ERROR,
+    /* New message types for extended features */
+    MSG_SERVER_LIST_REQ,
+    MSG_SERVER_LIST_REP,
+    MSG_JOIN_SPECTATE,
+    MSG_SPECTATE_UPDATE,
+    MSG_SET_GAME_MODE,
+    MSG_SET_TIMER,
+    MSG_RUSH_UPDATE,
+    MSG_SWITCH_VIEW,
+    MSG_TIME_SYNC,
+    MSG_GAME_END
 } MsgType;
+
+/* Server info for server browser */
+typedef struct {
+    char room_code[6];       /* Room code */
+    char host_name[32];      /* Host player name */
+    int player_count;        /* Current players */
+    int max_players;         /* Maximum players (4) */
+    int game_started;        /* Game already started? */
+    int game_mode;           /* GAME_MODE_CLASSIC or GAME_MODE_RUSH */
+    int is_public;           /* Is room public/listed */
+} ServerInfo;
+
+/* Server list data structure */
+typedef struct {
+    ServerInfo servers[10];  /* Up to 10 servers */
+    int count;               /* Number of servers */
+} ServerListData;
+
+/* Rush mode player state (for spectating) */
+typedef struct {
+    char pseudo[32];         /* Player name */
+    int grid[GRID_H][GRID_W]; /* Player's grid */
+    int score;               /* Player's score */
+    int is_spectator;        /* Is this a spectator? */
+} RushPlayerState;
 
 /* Lobby state structure */
 typedef struct {
@@ -28,8 +64,12 @@ typedef struct {
     int scores[4];           /* Player scores */
     int is_host;             /* 1 if this client is host */
     int player_count;        /* Current player count */
-    int timer_minutes;       /* Game timer (future use) */
+    int timer_minutes;       /* Game timer for Rush mode */
     int game_started;        /* Game running flag */
+    int game_mode;           /* GAME_MODE_CLASSIC or GAME_MODE_RUSH */
+    int is_public;           /* Is room public/listed */
+    int spectator_count;     /* Number of spectators */
+    int is_spectator[4];     /* Spectator flags for each slot */
 } LobbyState;
 
 /* Leaderboard data structure */
@@ -50,6 +90,14 @@ typedef struct {
     char turn_pseudo[32];               /* Current turn player name */
     LobbyState lobby;                   /* Lobby information */
     LeaderboardData lb;                 /* Leaderboard data */
+    /* Extended fields for new features */
+    ServerListData server_list;         /* Server browser data */
+    int game_mode;                       /* Game mode */
+    int timer_value;                     /* Timer in seconds */
+    int time_remaining;                  /* Remaining time for Rush */
+    int viewing_player_idx;              /* Index of player being viewed (spectator) */
+    RushPlayerState rush_states[4];      /* Rush mode player states */
+    int rush_player_count;               /* Number of players in Rush */
 } Packet;
 #pragma pack(pop)
 
