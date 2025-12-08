@@ -3,6 +3,7 @@
 
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "     BLOCKBLAST BUILD SCRIPT" -ForegroundColor Cyan
+Write-Host "     (Neon/Cyberpunk Edition)" -ForegroundColor Magenta
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -40,7 +41,7 @@ if ($LASTEXITCODE -eq 0) {
 
 Write-Host ""
 
-# Compile Client
+# Compile Client (with SDL_image support)
 Write-Host ">>> Compiling CLIENT..." -ForegroundColor Yellow
 $clientArgs = @(
     "-std=c99"
@@ -55,7 +56,10 @@ $clientArgs = @(
     "-lSDLmain"
     "-lSDL"
     "-lSDL_ttf"
+    "-lSDL_image"
+    "-lSDL_mixer"
     "-lws2_32"
+    "-lm"
     "-mwindows"
 ) | Where-Object { $_ -ne "" }
 
@@ -78,9 +82,10 @@ Write-Host "Executables created in bin/ directory:"
 Write-Host "  - blockblast_server.exe"
 Write-Host "  - blockblast.exe"
 Write-Host ""
-Write-Host "Make sure assets/font.ttf exists before running the client!" -ForegroundColor Yellow
+Write-Host "Required assets in assets/ directory:" -ForegroundColor Yellow
+Write-Host "  - font.ttf (fallback font)"
+Write-Host "  - orbitron.ttf (neon font - download from Google Fonts)"
 Write-Host ""
 Write-Host "To run:" -ForegroundColor Cyan
 Write-Host "  1. Start the server:  .\bin\blockblast_server.exe"
 Write-Host "  2. Start the client:  .\bin\blockblast.exe"
-

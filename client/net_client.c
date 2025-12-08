@@ -19,7 +19,6 @@
     typedef int SOCKET;
 #endif
 
-/* Global socket variable */
 static SOCKET sock = INVALID_SOCKET;
 
 #ifdef _WIN32
@@ -33,7 +32,7 @@ int net_connect(const char *ip, int port) {
     WSADATA wsaData;
     u_long mode = 1;
     
-    /* Initialize Winsock */
+    
     if (!wsa_initialized) {
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
             printf("WSAStartup failed\n");
@@ -43,19 +42,19 @@ int net_connect(const char *ip, int port) {
     }
 #endif
     
-    /* Create socket */
+    
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         printf("Socket creation failed\n");
         return 0;
     }
     
-    /* Set up server address */
+    
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons((unsigned short)port);
     
-    /* Convert IP string to binary */
+    
     if (inet_pton(AF_INET, ip, &server_addr.sin_addr) <= 0) {
         printf("Invalid address: %s\n", ip);
         closesocket(sock);
@@ -63,7 +62,7 @@ int net_connect(const char *ip, int port) {
         return 0;
     }
     
-    /* Connect to server */
+    
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         printf("Connection failed to %s:%d\n", ip, port);
         closesocket(sock);
@@ -71,7 +70,7 @@ int net_connect(const char *ip, int port) {
         return 0;
     }
     
-    /* Set non-blocking mode */
+    
 #ifdef _WIN32
     ioctlsocket(sock, FIONBIO, &mode);
 #else
@@ -100,10 +99,10 @@ int net_receive(Packet *pkt) {
         return 0;
     }
     
-    /* Clear packet */
+    
     memset(pkt, 0, sizeof(Packet));
     
-    /* Non-blocking receive */
+    
     len = recv(sock, (char *)pkt, sizeof(Packet), 0);
     
     if (len > 0) {
@@ -111,18 +110,18 @@ int net_receive(Packet *pkt) {
     }
     
 #ifdef _WIN32
-    /* Check for WSAEWOULDBLOCK (no data available) */
+    
     if (WSAGetLastError() == WSAEWOULDBLOCK) {
         return 0;
     }
 #else
-    /* Check for EAGAIN/EWOULDBLOCK (no data available) */
+    
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
         return 0;
     }
 #endif
     
-    /* Connection error or closed */
+    
     if (len == 0 || len < 0) {
         return 0;
     }

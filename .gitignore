@@ -1,7 +1,21 @@
-blockblast_server.exe
-blockblast.exe
-leaderboard.txt
-later
-.gitignore
+# Binaries
 /bin/
-build.sh
+*.exe
+
+# Save files
+*.sav
+*.arthur
+leaderboard.txt
+
+# Debug files
+debug_*.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+*.o
+*.obj

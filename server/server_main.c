@@ -27,55 +27,49 @@
 #define MAX_ROOMS 10
 #define LEADERBOARD_FILE "leaderboard.txt"
 
-/* Room structure */
 typedef struct {
-    char code[6];               /* 4-char room code */
-    int host_id;                /* Client ID of host */
-    int client_ids[4];          /* Up to 4 players */
-    int count;                  /* Current player count */
-    int active;                 /* Room is in use */
-    int game_running;           /* Game started flag */
-    int timer_minutes;          /* Timer for Rush mode */
-    int current_turn;           /* Index of current player (0-3) */
-    int grid[GRID_H][GRID_W];   /* Shared game grid (Classic mode) */
-    /* New fields for extended features */
-    int game_mode;              /* GAME_MODE_CLASSIC or GAME_MODE_RUSH */
-    int is_public;              /* Is room visible in server browser */
-    int is_spectator[4];        /* Spectator flags for each slot */
-    int spectator_count;        /* Number of spectators */
-    /* Rush mode specific */
-    int rush_grids[4][GRID_H][GRID_W];  /* Individual grids for Rush */
-    int rush_scores[4];         /* Individual scores for Rush */
-    time_t rush_start_time;     /* When Rush game started */
-    int rush_duration;          /* Rush duration in seconds */
+    char code[6];               
+    int host_id;                
+    int client_ids[4];          
+    int count;                  
+    int active;                 
+    int game_running;           
+    int timer_minutes;          
+    int current_turn;           
+    int grid[GRID_H][GRID_W];   
+    
+    int game_mode;              
+    int is_public;              
+    int is_spectator[4];        
+    int spectator_count;        
+    
+    int rush_grids[4][GRID_H][GRID_W];  
+    int rush_scores[4];         
+    time_t rush_start_time;     
+    int rush_duration;          
 } Room;
 
-/* Client structure */
 typedef struct {
     SOCKET socket;
     char pseudo[32];
-    int active;                 /* Connection active */
-    int room_idx;               /* Index in rooms array (-1 if not in room) */
+    int active;                 
+    int room_idx;               
 } Client;
 
-/* Global arrays */
 static Client clients[MAX_CLIENTS];
 static Room rooms[MAX_ROOMS];
 
-/* Forward declarations */
 static void send_to_client(int client_idx, Packet *pkt);
 static void broadcast_to_room(int room_idx, Packet *pkt);
 static void save_score(const char *name, int score);
 static void send_rush_update(int room_idx);
 static void send_room_update(int room_idx);
 
-/* Leaderboard entry for sorting */
 typedef struct {
     char name[32];
     int score;
 } LeaderboardEntry;
 
-/* Generate random room code */
 static void generate_code(char *dest) {
     static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int i;
@@ -86,7 +80,6 @@ static void generate_code(char *dest) {
     dest[4] = '\0';
 }
 
-/* Save score to leaderboard file */
 static void save_score(const char *name, int score) {
     FILE *f;
     LeaderboardEntry entries[100];
@@ -94,7 +87,7 @@ static void save_score(const char *name, int score) {
     int i, found = 0;
     char line[128];
     
-    /* Read existing entries */
+    
     f = fopen(LEADERBOARD_FILE, "r");
     if (f) {
         while (fgets(line, sizeof(line), f) && count < 100) {
@@ -105,7 +98,7 @@ static void save_score(const char *name, int score) {
         fclose(f);
     }
     
-    /* Update or add entry */
+    
     for (i = 0; i < count; i++) {
         if (strcmp(entries[i].name, name) == 0) {
             if (score > entries[i].score) {
@@ -122,7 +115,7 @@ static void save_score(const char *name, int score) {
         count++;
     }
     
-    /* Write back to file */
+    
     f = fopen(LEADERBOARD_FILE, "w");
     if (f) {
         for (i = 0; i < count; i++) {
@@ -132,7 +125,6 @@ static void save_score(const char *name, int score) {
     }
 }
 
-/* Get leaderboard (sorted top 5) */
 static void get_leaderboard(LeaderboardData *lb) {
     FILE *f;
     LeaderboardEntry entries[100];
@@ -143,7 +135,7 @@ static void get_leaderboard(LeaderboardData *lb) {
     
     memset(lb, 0, sizeof(LeaderboardData));
     
-    /* Read entries */
+    
     f = fopen(LEADERBOARD_FILE, "r");
     if (f) {
         while (fgets(line, sizeof(line), f) && count < 100) {
@@ -154,7 +146,7 @@ static void get_leaderboard(LeaderboardData *lb) {
         fclose(f);
     }
     
-    /* Bubble sort descending by score */
+    
     for (i = 0; i < count - 1; i++) {
         for (j = 0; j < count - i - 1; j++) {
             if (entries[j].score < entries[j + 1].score) {
@@ -165,7 +157,7 @@ static void get_leaderboard(LeaderboardData *lb) {
         }
     }
     
-    /* Copy top 5 */
+    
     lb->count = count < 5 ? count : 5;
     for (i = 0; i < lb->count; i++) {
         strcpy(lb->names[i], entries[i].name);
@@ -173,14 +165,12 @@ static void get_leaderboard(LeaderboardData *lb) {
     }
 }
 
-/* Send packet to a client */
 static void send_to_client(int client_idx, Packet *pkt) {
     if (client_idx >= 0 && client_idx < MAX_CLIENTS && clients[client_idx].active) {
         send(clients[client_idx].socket, (const char *)pkt, sizeof(Packet), 0);
     }
 }
 
-/* Send room update to all players in room */
 static void send_room_update(int room_idx) {
     Packet pkt;
     int i, j, c;
@@ -198,7 +188,7 @@ static void send_room_update(int room_idx) {
         memset(&pkt, 0, sizeof(pkt));
         pkt.type = MSG_ROOM_UPDATE;
         
-        /* Copy room info */
+        
         strcpy(pkt.lobby.room_code, room->code);
         pkt.lobby.player_count = room->count;
         pkt.lobby.game_started = room->game_running;
@@ -207,10 +197,10 @@ static void send_room_update(int room_idx) {
         pkt.lobby.is_public = room->is_public;
         pkt.lobby.spectator_count = room->spectator_count;
         
-        /* Set host flag for this client */
+        
         pkt.lobby.is_host = (c == room->host_id) ? 1 : 0;
         
-        /* Copy player names and spectator flags */
+        
         for (j = 0; j < room->count; j++) {
             strcpy(pkt.lobby.players[j], clients[room->client_ids[j]].pseudo);
             pkt.lobby.is_spectator[j] = room->is_spectator[j];
@@ -220,7 +210,6 @@ static void send_room_update(int room_idx) {
     }
 }
 
-/* Build server list for browser */
 static void build_server_list(ServerListData *list) {
     int i, count = 0;
     
@@ -243,7 +232,6 @@ static void build_server_list(ServerListData *list) {
     list->count = count;
 }
 
-/* Send Rush mode update to all players */
 static void send_rush_update(int room_idx) {
     Packet pkt;
     int i, j;
@@ -255,7 +243,7 @@ static void send_rush_update(int room_idx) {
     
     room = &rooms[room_idx];
     
-    /* Calculate remaining time */
+    
     time_t now = time(NULL);
     int elapsed = (int)(now - room->rush_start_time);
     int remaining = room->rush_duration - elapsed;
@@ -266,7 +254,7 @@ static void send_rush_update(int room_idx) {
     pkt.time_remaining = remaining;
     pkt.rush_player_count = 0;
     
-    /* Copy all player states */
+    
     for (i = 0; i < room->count; i++) {
         if (!room->is_spectator[i]) {
             RushPlayerState *state = &pkt.rush_states[pkt.rush_player_count];
@@ -278,19 +266,19 @@ static void send_rush_update(int room_idx) {
         }
     }
     
-    /* Broadcast to all in room */
+    
     for (i = 0; i < room->count; i++) {
         send_to_client(room->client_ids[i], &pkt);
     }
     
-    /* Check if time is up */
+    
     if (remaining <= 0 && room->game_running) {
-        /* End game */
+        
         memset(&pkt, 0, sizeof(pkt));
         pkt.type = MSG_GAME_END;
         pkt.time_remaining = 0;
         
-        /* Find winner */
+        
         int max_score = -1;
         int winner_idx = 0;
         for (i = 0; i < room->count; i++) {
@@ -303,7 +291,7 @@ static void send_rush_update(int room_idx) {
         strcpy(pkt.turn_pseudo, clients[room->client_ids[winner_idx]].pseudo);
         pkt.score = max_score;
         
-        /* Save all scores */
+        
         for (i = 0; i < room->count; i++) {
             if (!room->is_spectator[i]) {
                 save_score(clients[room->client_ids[i]].pseudo, room->rush_scores[i]);
@@ -317,7 +305,6 @@ static void send_rush_update(int room_idx) {
     }
 }
 
-/* Broadcast packet to all players in room */
 static void broadcast_to_room(int room_idx, Packet *pkt) {
     int i, c;
     Room *room;
@@ -334,7 +321,6 @@ static void broadcast_to_room(int room_idx, Packet *pkt) {
     }
 }
 
-/* Remove client from their room */
 static void remove_client_from_room(int client_idx) {
     int room_idx = clients[client_idx].room_idx;
     Room *room;
@@ -354,7 +340,7 @@ static void remove_client_from_room(int client_idx) {
         return;
     }
     
-    /* Find client in room and check if spectator */
+    
     for (i = 0; i < room->count; i++) {
         if (room->client_ids[i] == client_idx) {
             was_spectator = room->is_spectator[i];
@@ -368,12 +354,12 @@ static void remove_client_from_room(int client_idx) {
         return;
     }
     
-    /* Update spectator count */
+    
     if (was_spectator) {
         room->spectator_count--;
     }
     
-    /* Shift remaining players and their spectator flags */
+    
     for (j = slot_idx; j < room->count - 1; j++) {
         room->client_ids[j] = room->client_ids[j + 1];
         room->is_spectator[j] = room->is_spectator[j + 1];
@@ -382,35 +368,35 @@ static void remove_client_from_room(int client_idx) {
     
     clients[client_idx].room_idx = -1;
     
-    /* Handle room state after removal */
+    
     if (room->count == 0) {
-        /* Last player left, deactivate room */
+        
         room->active = 0;
         printf("Room %s closed (empty)\n", room->code);
     } else if (client_idx == room->host_id) {
-        /* Host left */
+        
         if (room->game_running) {
-            /* Cancel game */
+            
             memset(&pkt, 0, sizeof(pkt));
             pkt.type = MSG_GAME_CANCELLED;
             strcpy(pkt.text, "L'hote a quitte la partie!");
             broadcast_to_room(room_idx, &pkt);
             room->active = 0;
             
-            /* Clear room_idx for remaining clients */
+            
             for (i = 0; i < room->count; i++) {
                 clients[room->client_ids[i]].room_idx = -1;
             }
             printf("Room %s closed (host left during game)\n", room->code);
         } else {
-            /* Promote new host (skip spectators) */
+            
             for (i = 0; i < room->count; i++) {
                 if (!room->is_spectator[i]) {
                     room->host_id = room->client_ids[i];
                     break;
                 }
             }
-            /* If only spectators remain, just pick first one */
+            
             if (i >= room->count) {
                 room->host_id = room->client_ids[0];
             }
@@ -418,36 +404,35 @@ static void remove_client_from_room(int client_idx) {
             printf("Room %s: New host is %s\n", room->code, clients[room->host_id].pseudo);
         }
     } else if (room->game_running && !was_spectator) {
-        /* Non-host player (not spectator) left during game */
+        
         if (room->game_mode == GAME_MODE_RUSH) {
-            /* Rush mode: game can continue, just update everyone */
+            
             send_rush_update(room_idx);
             printf("%s left Rush game in room %s\n", clients[client_idx].pseudo, room->code);
         } else {
-            /* Classic mode: cancel game */
+            
             memset(&pkt, 0, sizeof(pkt));
             pkt.type = MSG_GAME_CANCELLED;
             strcpy(pkt.text, "Un joueur a quitte la partie!");
             broadcast_to_room(room_idx, &pkt);
             room->active = 0;
             
-            /* Clear room_idx for remaining clients */
+            
             for (i = 0; i < room->count; i++) {
                 clients[room->client_ids[i]].room_idx = -1;
             }
             printf("Room %s closed (player left during game)\n", room->code);
         }
     } else if (room->game_running && was_spectator) {
-        /* Spectator left during game - just notify others */
+        
         send_room_update(room_idx);
         printf("Spectator %s left room %s\n", clients[client_idx].pseudo, room->code);
     } else {
-        /* Regular leave in lobby */
+        
         send_room_update(room_idx);
     }
 }
 
-/* Process client packet */
 static void process_packet(int client_idx, Packet *pkt) {
     Packet reply;
     int i, room_idx;
@@ -468,7 +453,7 @@ static void process_packet(int client_idx, Packet *pkt) {
             break;
         
         case MSG_CREATE_ROOM:
-            /* Find empty room slot */
+            
             room_idx = -1;
             for (i = 0; i < MAX_ROOMS; i++) {
                 if (!rooms[i].active) {
@@ -485,7 +470,7 @@ static void process_packet(int client_idx, Packet *pkt) {
                 break;
             }
             
-            /* Initialize room */
+            
             room = &rooms[room_idx];
             memset(room, 0, sizeof(Room));
             room->active = 1;
@@ -503,7 +488,7 @@ static void process_packet(int client_idx, Packet *pkt) {
             break;
         
         case MSG_JOIN_ROOM:
-            /* Find room by code */
+            
             room_idx = -1;
             for (i = 0; i < MAX_ROOMS; i++) {
                 if (rooms[i].active && strcmp(rooms[i].code, pkt->text) == 0) {
@@ -538,7 +523,7 @@ static void process_packet(int client_idx, Packet *pkt) {
                 break;
             }
             
-            /* Add client to room */
+            
             room->client_ids[room->count] = client_idx;
             room->count++;
             clients[client_idx].room_idx = room_idx;
@@ -553,21 +538,21 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             room = &rooms[room_idx];
             
-            /* Verify client is host */
+            
             if (client_idx != room->host_id) break;
             
-            /* Find target player */
+            
             for (i = 0; i < room->count; i++) {
                 int target_idx = room->client_ids[i];
                 if (strcmp(clients[target_idx].pseudo, pkt->text) == 0 && target_idx != client_idx) {
-                    /* Send kick notification */
+                    
                     memset(&reply, 0, sizeof(reply));
                     reply.type = MSG_KICKED;
                     send_to_client(target_idx, &reply);
                     
                     printf("%s kicked from room %s\n", clients[target_idx].pseudo, room->code);
                     
-                    /* Remove from room */
+                    
                     remove_client_from_room(target_idx);
                     break;
                 }
@@ -580,32 +565,32 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             room = &rooms[room_idx];
             
-            /* Verify client is host */
+            
             if (client_idx != room->host_id) break;
             
-            /* Need at least 2 non-spectator players */
+            
             {
                 int actual_players = room->count - room->spectator_count;
                 if (actual_players < 2) break;
             }
             
-            /* Set game mode from packet */
+            
             room->game_mode = pkt->game_mode;
             if (pkt->timer_value > 0) {
                 room->rush_duration = pkt->timer_value;
                 room->timer_minutes = pkt->timer_value / 60;
             }
             
-            /* Start game */
+            
             room->game_running = 1;
             
             if (room->game_mode == GAME_MODE_RUSH) {
-                /* Initialize Rush mode */
+                
                 room->rush_start_time = time(NULL);
                 memset(room->rush_grids, 0, sizeof(room->rush_grids));
                 memset(room->rush_scores, 0, sizeof(room->rush_scores));
                 
-                /* Send start to all players */
+                
                 memset(&reply, 0, sizeof(reply));
                 reply.type = MSG_START_GAME;
                 reply.game_mode = GAME_MODE_RUSH;
@@ -616,20 +601,20 @@ static void process_packet(int client_idx, Packet *pkt) {
                 
                 printf("Rush game started in room %s (duration: %d sec)\n", room->code, room->rush_duration);
                 
-                /* Send initial rush update */
+                
                 send_rush_update(room_idx);
             } else {
-                /* Classic mode */
+                
                 room->current_turn = 0;
                 
-                /* Skip spectators for first turn */
+                
                 while (room->is_spectator[room->current_turn] && room->current_turn < room->count - 1) {
                     room->current_turn++;
                 }
                 
                 memset(room->grid, 0, sizeof(room->grid));
                 
-                /* Broadcast start */
+                
                 memset(&reply, 0, sizeof(reply));
                 reply.type = MSG_START_GAME;
                 reply.game_mode = GAME_MODE_CLASSIC;
@@ -648,11 +633,11 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             room = &rooms[room_idx];
             
-            /* Verify game is running */
+            
             if (!room->game_running) break;
             
             if (room->game_mode == GAME_MODE_RUSH) {
-                /* Rush mode - find player index and update their grid */
+                
                 int player_idx = -1;
                 for (i = 0; i < room->count; i++) {
                     if (room->client_ids[i] == client_idx && !room->is_spectator[i]) {
@@ -665,25 +650,25 @@ static void process_packet(int client_idx, Packet *pkt) {
                     memcpy(room->rush_grids[player_idx], pkt->grid_data, sizeof(room->rush_grids[0]));
                     room->rush_scores[player_idx] = pkt->score;
                     
-                    /* Send update to all */
+                    
                     send_rush_update(room_idx);
                 }
             } else {
-                /* Classic mode - verify it's this client's turn */
+                
                 if (room->client_ids[room->current_turn] != client_idx) break;
                 
-                /* Update grid */
+                
                 memcpy(room->grid, pkt->grid_data, sizeof(room->grid));
                 
-                /* Save score */
+                
                 save_score(clients[client_idx].pseudo, pkt->score);
                 
-                /* Advance turn (skip spectators) */
+                
                 do {
                     room->current_turn = (room->current_turn + 1) % room->count;
                 } while (room->is_spectator[room->current_turn] && room->count > 1);
                 
-                /* Broadcast update */
+                
                 memset(&reply, 0, sizeof(reply));
                 reply.type = MSG_UPDATE_GRID;
                 memcpy(reply.grid_data, room->grid, sizeof(room->grid));
@@ -702,7 +687,7 @@ static void process_packet(int client_idx, Packet *pkt) {
             break;
         
         case MSG_JOIN_SPECTATE:
-            /* Find room by code */
+            
             room_idx = -1;
             for (i = 0; i < MAX_ROOMS; i++) {
                 if (rooms[i].active && strcmp(rooms[i].code, pkt->text) == 0) {
@@ -729,7 +714,7 @@ static void process_packet(int client_idx, Packet *pkt) {
                 break;
             }
             
-            /* Add client as spectator */
+            
             room->client_ids[room->count] = client_idx;
             room->is_spectator[room->count] = 1;
             room->count++;
@@ -738,7 +723,7 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             printf("%s joined room %s as spectator\n", clients[client_idx].pseudo, room->code);
             
-            /* If game is running, send current game state */
+            
             if (room->game_running) {
                 if (room->game_mode == GAME_MODE_RUSH) {
                     send_rush_update(room_idx);
@@ -761,10 +746,10 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             room = &rooms[room_idx];
             
-            /* Verify client is host */
+            
             if (client_idx != room->host_id) break;
             
-            /* Don't allow changes during game */
+            
             if (room->game_running) break;
             
             room->game_mode = pkt->game_mode;
@@ -773,7 +758,7 @@ static void process_packet(int client_idx, Packet *pkt) {
                 room->timer_minutes = pkt->timer_value / 60;
             }
             
-            /* Handle visibility toggle */
+            
             if (pkt->lobby.is_public != room->is_public) {
                 room->is_public = pkt->lobby.is_public;
                 printf("Room %s visibility: %s\n", room->code, room->is_public ? "public" : "private");
@@ -790,7 +775,7 @@ static void process_packet(int client_idx, Packet *pkt) {
             
             room = &rooms[room_idx];
             
-            /* Verify client is host */
+            
             if (client_idx != room->host_id) break;
             
             room->rush_duration = pkt->timer_value;
@@ -826,10 +811,10 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
-    /* Initialize random */
+    
     srand((unsigned int)time(NULL));
     
-    /* Initialize arrays */
+    
     for (i = 0; i < MAX_CLIENTS; i++) {
         clients[i].active = 0;
         clients[i].room_idx = -1;
@@ -840,17 +825,17 @@ int main(int argc, char *argv[]) {
         rooms[i].active = 0;
     }
     
-    /* Create server socket */
+    
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == INVALID_SOCKET) {
         printf("Socket creation failed\n");
         return 1;
     }
     
-    /* Set socket options */
+    
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
     
-    /* Bind */
+    
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons((unsigned short)port);
@@ -861,7 +846,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    /* Listen */
+    
     if (listen(server_fd, 5) < 0) {
         printf("Listen failed\n");
         closesocket(server_fd);
@@ -872,7 +857,7 @@ int main(int argc, char *argv[]) {
     printf("  BLOCKBLAST SERVER READY ON PORT %d\n", port);
     printf("========================================\n");
     
-    /* Main loop */
+    
     while (1) {
         struct timeval timeout;
         int activity;
@@ -881,7 +866,7 @@ int main(int argc, char *argv[]) {
         FD_SET(server_fd, &readfds);
         max_sd = server_fd;
         
-        /* Add client sockets */
+        
         for (i = 0; i < MAX_CLIENTS; i++) {
             if (clients[i].active) {
                 FD_SET(clients[i].socket, &readfds);
@@ -891,14 +876,14 @@ int main(int argc, char *argv[]) {
             }
         }
         
-        /* Set timeout for periodic Rush updates (1 second) */
+        
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
         
-        /* Wait for activity with timeout */
+        
         activity = select((int)(max_sd + 1), &readfds, NULL, NULL, &timeout);
         
-        /* Check Rush games for time updates */
+        
         for (i = 0; i < MAX_ROOMS; i++) {
             if (rooms[i].active && rooms[i].game_running && rooms[i].game_mode == GAME_MODE_RUSH) {
                 send_rush_update(i);
@@ -910,16 +895,16 @@ int main(int argc, char *argv[]) {
         }
         
         if (activity == 0) {
-            /* Timeout - just continue to send periodic updates */
+            
             continue;
         }
         
-        /* Check for new connection */
+        
         if (FD_ISSET(server_fd, &readfds)) {
             new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen);
             
             if (new_socket != INVALID_SOCKET) {
-                /* Find empty client slot */
+                
                 for (i = 0; i < MAX_CLIENTS; i++) {
                     if (!clients[i].active) {
                         clients[i].socket = new_socket;
@@ -933,24 +918,24 @@ int main(int argc, char *argv[]) {
                 }
                 
                 if (i == MAX_CLIENTS) {
-                    /* No room for new client */
+                    
                     closesocket(new_socket);
                     printf("Rejected connection (server full)\n");
                 }
             }
         }
         
-        /* Check client sockets */
+        
         for (i = 0; i < MAX_CLIENTS; i++) {
             if (clients[i].active && FD_ISSET(clients[i].socket, &readfds)) {
                 Packet pkt;
                 int val = recv(clients[i].socket, (char *)&pkt, sizeof(Packet), 0);
                 
                 if (val <= 0) {
-                    /* Client disconnected */
+                    
                     printf("Client %d disconnected (%s)\n", i, clients[i].pseudo);
                     
-                    /* Handle room cleanup */
+                    
                     if (clients[i].room_idx >= 0) {
                         remove_client_from_room(i);
                     }
@@ -965,7 +950,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    /* Cleanup (never reached) */
+    
     closesocket(server_fd);
     
 #ifdef _WIN32
