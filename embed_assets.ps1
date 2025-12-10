@@ -1,6 +1,3 @@
-# embed_assets.ps1 - Convertit les assets en tableaux C pour embarquement
-# Version optimisee pour gros fichiers
-
 $OutputHeader = "client/embedded_assets.h"
 $OutputSource = "client/embedded_assets.c"
 
@@ -20,7 +17,6 @@ Write-Host "  BLOCKBLAST - Asset Embedder" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Compile bin2c tool if needed
 $bin2cExe = "tools/bin2c.exe"
 $bin2cSrc = "tools/bin2c.c"
 
@@ -38,13 +34,11 @@ if (!(Test-Path $bin2cExe) -or ((Get-Item $bin2cSrc -ErrorAction SilentlyContinu
     Write-Host "[OK] bin2c compiled" -ForegroundColor Green
 }
 
-# Generate temporary C files for each asset
 $TempDir = "tools/temp_assets"
 if (!(Test-Path $TempDir)) {
     New-Item -ItemType Directory -Path $TempDir | Out-Null
 }
 
-# Header file start
 $HeaderContent = @"
 #ifndef EMBEDDED_ASSETS_H
 #define EMBEDDED_ASSETS_H
@@ -55,7 +49,6 @@ $HeaderContent = @"
 
 "@
 
-# Source file start
 $SourceContent = @"
 #include "embedded_assets.h"
 
@@ -76,17 +69,14 @@ foreach ($Asset in $Assets) {
         
         Write-Host -NoNewline "Converting $Path ($FileSizeKB KB)... "
         
-        # Use bin2c for conversion
         $result = & $bin2cExe $Path $TempFile $Name 2>&1
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "[OK]" -ForegroundColor Green
             
-            # Read the generated content and append
             $GeneratedContent = Get-Content $TempFile -Raw
             $SourceContent += $GeneratedContent + "`n"
             
-            # Header declaration
             $HeaderContent += "extern const unsigned char ${Name}_data[];`n"
             $HeaderContent += "extern const size_t ${Name}_size;`n`n"
             
@@ -99,7 +89,6 @@ foreach ($Asset in $Assets) {
     else {
         Write-Host "[SKIP] $Path (not found)" -ForegroundColor Yellow
         
-        # Empty placeholder
         $HeaderContent += "extern const unsigned char ${Name}_data[];`n"
         $HeaderContent += "extern const size_t ${Name}_size;`n`n"
         
@@ -108,7 +97,6 @@ foreach ($Asset in $Assets) {
     }
 }
 
-# Close header
 $HeaderContent += @"
 
 #else
@@ -135,17 +123,14 @@ $HeaderContent += @"
 #endif
 "@
 
-# Close source
 $SourceContent += @"
 
 #endif
 "@
 
-# Write files
 [System.IO.File]::WriteAllText($OutputHeader, $HeaderContent)
 [System.IO.File]::WriteAllText($OutputSource, $SourceContent)
 
-# Cleanup temp files
 Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
