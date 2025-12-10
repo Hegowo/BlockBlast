@@ -1,5 +1,6 @@
 #include "audio.h"
 #include "globals.h"
+#include "embedded_assets.h"
 #include <stdio.h>
 
 Mix_Chunk *snd_place = NULL;
@@ -7,6 +8,40 @@ Mix_Chunk *snd_clear = NULL;
 Mix_Chunk *snd_gameover = NULL;
 Mix_Chunk *snd_click = NULL;
 Mix_Music *music_bg = NULL;
+
+static Mix_Chunk* load_sound_embedded_or_file(const unsigned char *data, size_t size, const char *path1, const char *path2, const char *path3) {
+    Mix_Chunk *chunk = NULL;
+    
+#ifdef EMBED_ASSETS
+    if (data && size > 0) {
+        SDL_RWops *rw = SDL_RWFromConstMem(data, (int)size);
+        if (rw) {
+            chunk = Mix_LoadWAV_RW(rw, 1);
+            if (chunk) {
+                return chunk;
+            }
+        }
+    }
+#else
+    (void)data;
+    (void)size;
+#endif
+    
+    chunk = Mix_LoadWAV(path1);
+    if (chunk) return chunk;
+    
+    if (path2) {
+        chunk = Mix_LoadWAV(path2);
+        if (chunk) return chunk;
+    }
+    
+    if (path3) {
+        chunk = Mix_LoadWAV(path3);
+        if (chunk) return chunk;
+    }
+    
+    return NULL;
+}
 
 void init_audio(void) {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
@@ -17,42 +52,52 @@ void init_audio(void) {
     
     audio_enabled = 1;
     
-    snd_place = Mix_LoadWAV("assets/sounds/place.wav");
-    if (!snd_place) snd_place = Mix_LoadWAV("../assets/sounds/place.wav");
-    if (!snd_place) snd_place = Mix_LoadWAV("assets/place.wav");
+    snd_place = load_sound_embedded_or_file(sound_place_data, sound_place_size,
+        "assets/sounds/place.wav", "../assets/sounds/place.wav", "assets/place.wav");
     if (!snd_place) printf("WARNING: Could not load place.wav: %s\n", Mix_GetError());
     
-    snd_clear = Mix_LoadWAV("assets/sounds/clear.wav");
-    if (!snd_clear) snd_clear = Mix_LoadWAV("../assets/sounds/clear.wav");
-    if (!snd_clear) snd_clear = Mix_LoadWAV("assets/clear.wav");
+    snd_clear = load_sound_embedded_or_file(sound_clear_data, sound_clear_size,
+        "assets/sounds/clear.wav", "../assets/sounds/clear.wav", "assets/clear.wav");
     if (!snd_clear) printf("WARNING: Could not load clear.wav: %s\n", Mix_GetError());
     
-    snd_gameover = Mix_LoadWAV("assets/sounds/gameover.wav");
-    if (!snd_gameover) snd_gameover = Mix_LoadWAV("../assets/sounds/gameover.wav");
-    if (!snd_gameover) snd_gameover = Mix_LoadWAV("assets/gameover.wav");
+    snd_gameover = load_sound_embedded_or_file(sound_gameover_data, sound_gameover_size,
+        "assets/sounds/gameover.wav", "../assets/sounds/gameover.wav", "assets/gameover.wav");
     if (!snd_gameover) printf("WARNING: Could not load gameover.wav: %s\n", Mix_GetError());
     
-    snd_click = Mix_LoadWAV("assets/sounds/click.wav");
-    if (!snd_click) snd_click = Mix_LoadWAV("../assets/sounds/click.wav");
-    if (!snd_click) snd_click = Mix_LoadWAV("assets/click.wav");
+    snd_click = load_sound_embedded_or_file(sound_click_data, sound_click_size,
+        "assets/sounds/click.wav", "../assets/sounds/click.wav", "assets/click.wav");
     if (!snd_click) printf("WARNING: Could not load click.wav: %s\n", Mix_GetError());
     
-    const char *music_paths[] = {
-        "assets/sounds/music.wav",
-        "assets/sounds/music.ogg",
-        "assets/sounds/music.mp3",
-        "assets/music.wav",
-        "assets/music.ogg",
-        "../assets/sounds/music.wav",
-        "../assets/sounds/music.ogg",
-        NULL
-    };
+#ifdef EMBED_ASSETS
+    if (sound_music_data && sound_music_size > 0) {
+        SDL_RWops *rw = SDL_RWFromConstMem(sound_music_data, (int)sound_music_size);
+        if (rw) {
+            music_bg = Mix_LoadMUS_RW(rw);
+            if (music_bg) {
+                printf("Loaded music from embedded data\n");
+            }
+        }
+    }
+#endif
     
-    int m;
-    for (m = 0; music_paths[m] != NULL && !music_bg; m++) {
-        music_bg = Mix_LoadMUS(music_paths[m]);
-        if (music_bg) {
-            printf("Loaded music from: %s\n", music_paths[m]);
+    if (!music_bg) {
+        const char *music_paths[] = {
+            "assets/sounds/music.wav",
+            "assets/sounds/music.ogg",
+            "assets/sounds/music.mp3",
+            "assets/music.wav",
+            "assets/music.ogg",
+            "../assets/sounds/music.wav",
+            "../assets/sounds/music.ogg",
+            NULL
+        };
+        
+        int m;
+        for (m = 0; music_paths[m] != NULL && !music_bg; m++) {
+            music_bg = Mix_LoadMUS(music_paths[m]);
+            if (music_bg) {
+                printf("Loaded music from: %s\n", music_paths[m]);
+            }
         }
     }
     

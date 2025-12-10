@@ -17,6 +17,39 @@
 #include "input_handlers.h"
 #include "game.h"
 #include "net_client.h"
+#include "embedded_assets.h"
+
+static TTF_Font* load_font_embedded_or_file(const unsigned char *data, size_t size, int ptsize, const char **file_paths) {
+    TTF_Font *font = NULL;
+    
+#ifdef EMBED_ASSETS
+    if (data && size > 0) {
+        SDL_RWops *rw = SDL_RWFromConstMem(data, (int)size);
+        if (rw) {
+            font = TTF_OpenFontRW(rw, 1, ptsize);
+            if (font) {
+                return font;
+            }
+        }
+    }
+#else
+    (void)data;
+    (void)size;
+#endif
+    
+    if (file_paths) {
+        int i;
+        for (i = 0; file_paths[i] != NULL; i++) {
+            font = TTF_OpenFont(file_paths[i], ptsize);
+            if (font) {
+                printf("Loaded font from: %s\n", file_paths[i]);
+                return font;
+            }
+        }
+    }
+    
+    return NULL;
+}
 
 int main(int argc, char *argv[]) {
     SDL_Event e;
@@ -73,21 +106,65 @@ int main(int argc, char *argv[]) {
             "font.ttf",
             NULL
         };
-        int i;
         
-        for (i = 0; font_paths[i] != NULL; i++) {
-            font_L = TTF_OpenFont(font_paths[i], 40);
-            if (font_L) {
-                font_S = TTF_OpenFont(font_paths[i], 22);
-                font_XS = TTF_OpenFont(font_paths[i], 14);
-                if (font_S && font_XS) {
-                    printf("Loaded font from: %s\n", font_paths[i]);
-                    break;
+#ifdef EMBED_ASSETS
+        if (font_orbitron_size > 0) {
+            SDL_RWops *rw_L = SDL_RWFromConstMem(font_orbitron_data, (int)font_orbitron_size);
+            SDL_RWops *rw_S = SDL_RWFromConstMem(font_orbitron_data, (int)font_orbitron_size);
+            SDL_RWops *rw_XS = SDL_RWFromConstMem(font_orbitron_data, (int)font_orbitron_size);
+            
+            if (rw_L && rw_S && rw_XS) {
+                font_L = TTF_OpenFontRW(rw_L, 1, 40);
+                font_S = TTF_OpenFontRW(rw_S, 1, 22);
+                font_XS = TTF_OpenFontRW(rw_XS, 1, 14);
+                
+                if (font_L && font_S && font_XS) {
+                    printf("Loaded font from embedded data (orbitron)\n");
+                } else {
+                    if (font_L) { TTF_CloseFont(font_L); font_L = NULL; }
+                    if (font_S) { TTF_CloseFont(font_S); font_S = NULL; }
+                    if (font_XS) { TTF_CloseFont(font_XS); font_XS = NULL; }
                 }
-                TTF_CloseFont(font_L);
-                font_L = NULL;
-                if (font_S) { TTF_CloseFont(font_S); font_S = NULL; }
-                if (font_XS) { TTF_CloseFont(font_XS); font_XS = NULL; }
+            }
+        }
+        
+        if (!font_L && font_default_size > 0) {
+            SDL_RWops *rw_L = SDL_RWFromConstMem(font_default_data, (int)font_default_size);
+            SDL_RWops *rw_S = SDL_RWFromConstMem(font_default_data, (int)font_default_size);
+            SDL_RWops *rw_XS = SDL_RWFromConstMem(font_default_data, (int)font_default_size);
+            
+            if (rw_L && rw_S && rw_XS) {
+                font_L = TTF_OpenFontRW(rw_L, 1, 40);
+                font_S = TTF_OpenFontRW(rw_S, 1, 22);
+                font_XS = TTF_OpenFontRW(rw_XS, 1, 14);
+                
+                if (font_L && font_S && font_XS) {
+                    printf("Loaded font from embedded data (default)\n");
+                } else {
+                    if (font_L) { TTF_CloseFont(font_L); font_L = NULL; }
+                    if (font_S) { TTF_CloseFont(font_S); font_S = NULL; }
+                    if (font_XS) { TTF_CloseFont(font_XS); font_XS = NULL; }
+                }
+            }
+        }
+#endif
+        
+        if (!font_L) {
+            int i;
+            for (i = 0; font_paths[i] != NULL; i++) {
+                font_L = TTF_OpenFont(font_paths[i], 40);
+                if (font_L) {
+                    font_S = TTF_OpenFont(font_paths[i], 22);
+                    font_XS = TTF_OpenFont(font_paths[i], 14);
+                    if (font_S && font_XS) {
+                        printf("Loaded font from: %s\n", font_paths[i]);
+                        break;
+                    }
+                    TTF_CloseFont(font_L);
+                    font_L = NULL;
+                    if (font_S) { TTF_CloseFont(font_S); font_S = NULL; }
+                    if (font_XS) { TTF_CloseFont(font_XS); font_XS = NULL; }
+                }
             }
         }
     }
