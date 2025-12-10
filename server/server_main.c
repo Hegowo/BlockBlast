@@ -781,9 +781,42 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
+    printf("\n");
     printf("========================================\n");
-    printf("  BLOCKBLAST SERVER READY ON PORT %d\n", port);
+    printf("     BLOCKBLAST SERVER STARTED\n");
     printf("========================================\n");
+    printf("\n");
+    printf("  Port: %d\n", port);
+    printf("\n");
+    printf("  Adresses IP disponibles:\n");
+    
+    {
+        char hostname[256];
+        struct hostent *host_entry;
+        
+        if (gethostname(hostname, sizeof(hostname)) == 0) {
+            host_entry = gethostbyname(hostname);
+            if (host_entry != NULL) {
+                int idx;
+                for (idx = 0; host_entry->h_addr_list[idx] != NULL; idx++) {
+                    struct in_addr addr;
+                    memcpy(&addr, host_entry->h_addr_list[idx], sizeof(struct in_addr));
+                    printf("    - %s\n", inet_ntoa(addr));
+                }
+            }
+        }
+    }
+    
+    printf("\n");
+    printf("  Pour rejoindre, les joueurs doivent:\n");
+    printf("    1. Lancer BlockBlast\n");
+    printf("    2. Entrer l'IP du serveur (voir ci-dessus)\n");
+    printf("    3. Entrer le port: %d\n", port);
+    printf("\n");
+    printf("  Note: Utilisez l'IP locale (192.168.x.x)\n");
+    printf("  pour les joueurs sur le meme reseau.\n");
+    printf("========================================\n");
+    printf("\n");
     
     while (1) {
         struct timeval timeout;
