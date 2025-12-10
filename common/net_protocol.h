@@ -18,7 +18,6 @@ typedef enum {
     MSG_GAME_OVER,
     MSG_GAME_CANCELLED,
     MSG_ERROR,
-    
     MSG_SERVER_LIST_REQ,
     MSG_SERVER_LIST_REP,
     MSG_JOIN_SPECTATE,
@@ -32,67 +31,65 @@ typedef enum {
 } MsgType;
 
 typedef struct {
-    char room_code[6];       
-    char host_name[32];      
-    int player_count;        
-    int max_players;         
-    int game_started;        
-    int game_mode;           
-    int is_public;           
+    char room_code[6];
+    char host_name[32];
+    int player_count;
+    int max_players;
+    int game_started;
+    int game_mode;
+    int is_public;
 } ServerInfo;
 
 typedef struct {
-    ServerInfo servers[10];  
-    int count;               
+    ServerInfo servers[10];
+    int count;
 } ServerListData;
 
 typedef struct {
-    char pseudo[32];         
-    int grid[GRID_H][GRID_W]; 
-    int score;               
-    int is_spectator;        
+    char pseudo[32];
+    int grid[GRID_H][GRID_W];
+    int score;
+    int is_spectator;
 } RushPlayerState;
 
 typedef struct {
-    char room_code[6];       
-    char players[4][32];     
-    int scores[4];           
-    int is_host;             
-    int player_count;        
-    int timer_minutes;       
-    int game_started;        
-    int game_mode;           
-    int is_public;           
-    int spectator_count;     
-    int is_spectator[4];     
+    char room_code[6];
+    char players[4][32];
+    int scores[4];
+    int is_host;
+    int player_count;
+    int timer_minutes;
+    int game_started;
+    int game_mode;
+    int is_public;
+    int spectator_count;
+    int is_spectator[4];
 } LobbyState;
 
 typedef struct {
-    char names[5][32];       
-    int scores[5];           
-    int count;               
+    char names[5][32];
+    int scores[5];
+    int count;
 } LeaderboardData;
 
 #pragma pack(push, 1)
 typedef struct {
-    int type;                           
-    int client_id;                      
-    char text[64];                      
-    int grid_data[GRID_H][GRID_W];      
-    int score;                          
-    char turn_pseudo[32];               
-    LobbyState lobby;                   
-    LeaderboardData lb;                 
-    
-    ServerListData server_list;         
-    int game_mode;                       
-    int timer_value;                     
-    int time_remaining;                  
-    int viewing_player_idx;              
-    RushPlayerState rush_states[4];      
-    int rush_player_count;               
+    int type;
+    int client_id;
+    char text[64];
+    int grid_data[GRID_H][GRID_W];
+    int score;
+    char turn_pseudo[32];
+    LobbyState lobby;
+    LeaderboardData lb;
+    ServerListData server_list;
+    int game_mode;
+    int timer_value;
+    int time_remaining;
+    int viewing_player_idx;
+    RushPlayerState rush_states[4];
+    int rush_player_count;
 } Packet;
 #pragma pack(pop)
 
 #endif
-

@@ -32,7 +32,6 @@ int net_connect(const char *ip, int port) {
     WSADATA wsaData;
     u_long mode = 1;
     
-    
     if (!wsa_initialized) {
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
             printf("WSAStartup failed\n");
@@ -42,18 +41,15 @@ int net_connect(const char *ip, int port) {
     }
 #endif
     
-    
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         printf("Socket creation failed\n");
         return 0;
     }
     
-    
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons((unsigned short)port);
-    
     
     if (inet_pton(AF_INET, ip, &server_addr.sin_addr) <= 0) {
         printf("Invalid address: %s\n", ip);
@@ -62,14 +58,12 @@ int net_connect(const char *ip, int port) {
         return 0;
     }
     
-    
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         printf("Connection failed to %s:%d\n", ip, port);
         closesocket(sock);
         sock = INVALID_SOCKET;
         return 0;
     }
-    
     
 #ifdef _WIN32
     ioctlsocket(sock, FIONBIO, &mode);
@@ -99,9 +93,7 @@ int net_receive(Packet *pkt) {
         return 0;
     }
     
-    
     memset(pkt, 0, sizeof(Packet));
-    
     
     len = recv(sock, (char *)pkt, sizeof(Packet), 0);
     
@@ -110,17 +102,14 @@ int net_receive(Packet *pkt) {
     }
     
 #ifdef _WIN32
-    
     if (WSAGetLastError() == WSAEWOULDBLOCK) {
         return 0;
     }
 #else
-    
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
         return 0;
     }
 #endif
-    
     
     if (len == 0 || len < 0) {
         return 0;
@@ -146,4 +135,3 @@ void net_close(void) {
 int net_is_connected(void) {
     return sock != INVALID_SOCKET;
 }
-

@@ -4,57 +4,57 @@
 #include "../common/config.h"
 
 typedef struct {
-    int data[5][5];   
-    int w, h;         
-    int color;        
+    int data[5][5];
+    int w, h;
+    int color;
 } Piece;
 
 typedef struct {
-    float x, y;       
-    float vx, vy;     
-    float life;       
-    int color;        
-    int active;       
-    int size;         
+    float x, y;
+    float vx, vy;
+    float life;
+    int color;
+    int active;
+    int size;
 } Particle;
 
 typedef struct {
-    int row;          
-    int col;          
-    float progress;   
-    int active;       
-    int color;        
+    int row;
+    int col;
+    float progress;
+    int active;
+    int color;
 } LineClearEffect;
 
 typedef struct {
-    int row, col;     
-    float scale;      
-    float alpha;      
-    int color;        
-    int active;       
+    int row, col;
+    float scale;
+    float alpha;
+    int color;
+    int active;
 } PlaceEffect;
 
 typedef struct {
     Particle particles[MAX_PARTICLES];
-    LineClearEffect line_clears[20];  
-    PlaceEffect place_effects[25];    
+    LineClearEffect line_clears[20];
+    PlaceEffect place_effects[25];
     int line_clear_count;
     int place_effect_count;
-    int screen_shake;                 
-    float shake_time;                 
+    int screen_shake;
+    float shake_time;
 } EffectsManager;
 
 typedef struct {
-    int grid[GRID_H][GRID_W];    
-    int score;                    
-    int game_over;                
-    Piece current_pieces[3];      
-    int pieces_available[3];      
-    EffectsManager effects;       
-    int cleared_rows[GRID_H];     
-    int cleared_cols[GRID_W];     
-    int num_cleared_rows;         
-    int num_cleared_cols;         
+    int grid[GRID_H][GRID_W];
+    int score;
+    int game_over;
+    Piece current_pieces[3];
+    int pieces_available[3];
+    EffectsManager effects;
+    int cleared_rows[GRID_H];
+    int cleared_cols[GRID_W];
+    int num_cleared_rows;
+    int num_cleared_cols;
 } GameState;
 
 void init_game(GameState *gs);

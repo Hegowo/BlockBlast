@@ -4,7 +4,6 @@
 #include "game.h"
 
 static Piece piece_templates[] = {
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -12,9 +11,8 @@ static Piece piece_templates[] = {
                  {1, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 1, .h = 4,
-        .color = 0x9966CC  
+        .color = 0x9966CC
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -22,9 +20,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 3,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -32,9 +29,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 1, .h = 3,
-        .color = 0x44AACC  
+        .color = 0x44AACC
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {1, 1, 0, 0, 0},
@@ -42,9 +38,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 2,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 1, 1, 0, 0},
                  {1, 1, 1, 0, 0},
@@ -52,9 +47,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 3,
-        .color = 0xAA3344  
+        .color = 0xAA3344
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {0, 0, 0, 0, 0},
@@ -62,9 +56,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 1,
-        .color = 0xAA3344  
+        .color = 0xAA3344
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -72,9 +65,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 1, .h = 2,
-        .color = 0xDD7722  
+        .color = 0xDD7722
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {1, 1, 0, 0, 0},
@@ -82,9 +74,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 3,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 1, 1, 1, 1},
                  {0, 0, 0, 0, 0},
@@ -92,9 +83,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 5, .h = 1,
-        .color = 0x44AA44  
+        .color = 0x44AA44
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {0, 1, 0, 0, 0},
@@ -102,9 +92,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 2,
-        .color = 0x44AACC  
+        .color = 0x44AACC
     },
-    
     {
         .data = {{0, 1, 1, 0, 0},
                  {1, 1, 0, 0, 0},
@@ -112,9 +101,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 2,
-        .color = 0x44AACC  
+        .color = 0x44AACC
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {0, 1, 1, 0, 0},
@@ -122,9 +110,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 2,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -132,9 +119,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 3,
-        .color = 0x44AA44  
+        .color = 0x44AA44
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -142,9 +128,8 @@ static Piece piece_templates[] = {
                  {1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0}},
         .w = 1, .h = 5,
-        .color = 0xCCAA22  
+        .color = 0xCCAA22
     },
-    
     {
         .data = {{1, 1, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -152,9 +137,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 3,
-        .color = 0xCCAA22  
+        .color = 0xCCAA22
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 0, 0, 0, 0},
@@ -162,9 +146,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 3,
-        .color = 0xDD7722  
+        .color = 0xDD7722
     },
-    
     {
         .data = {{1, 1, 1, 0, 0},
                  {0, 0, 0, 0, 0},
@@ -172,9 +155,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 1,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 0, 0, 0, 0},
                  {1, 1, 0, 0, 0},
@@ -182,9 +164,8 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 2, .h = 2,
-        .color = 0x4466AA  
+        .color = 0x4466AA
     },
-    
     {
         .data = {{1, 1, 1, 0, 0},
                  {0, 1, 0, 0, 0},
@@ -192,7 +173,7 @@ static Piece piece_templates[] = {
                  {0, 0, 0, 0, 0},
                  {0, 0, 0, 0, 0}},
         .w = 3, .h = 3,
-        .color = 0x9966CC  
+        .color = 0x9966CC
     }
 };
 
@@ -222,13 +203,12 @@ void init_effects(EffectsManager *em) {
 void update_effects(EffectsManager *em, float dt) {
     int i;
     
-    
     for (i = 0; i < MAX_PARTICLES; i++) {
         if (em->particles[i].active) {
             Particle *p = &em->particles[i];
             p->x += p->vx * dt;
             p->y += p->vy * dt;
-            p->vy += 500.0f * dt;  
+            p->vy += 500.0f * dt;
             p->life -= dt * 2.0f;
             
             if (p->life <= 0) {
@@ -236,7 +216,6 @@ void update_effects(EffectsManager *em, float dt) {
             }
         }
     }
-    
     
     for (i = 0; i < 20; i++) {
         if (em->line_clears[i].active) {
@@ -247,7 +226,6 @@ void update_effects(EffectsManager *em, float dt) {
             }
         }
     }
-    
     
     for (i = 0; i < 25; i++) {
         if (em->place_effects[i].active) {
@@ -262,7 +240,6 @@ void update_effects(EffectsManager *em, float dt) {
             }
         }
     }
-    
     
     if (em->shake_time > 0) {
         em->shake_time -= dt;
@@ -315,7 +292,7 @@ void spawn_particles(EffectsManager *em, int x, int y, int color, int count) {
             float angle = (float)(rand() % 360) * 3.14159f / 180.0f;
             float speed = 100.0f + (float)(rand() % 250);
             p->vx = cosf(angle) * speed;
-            p->vy = sinf(angle) * speed - 100.0f;  
+            p->vy = sinf(angle) * speed - 100.0f;
             p->life = 0.6f + (float)(rand() % 40) / 100.0f;
             p->color = color;
             p->active = 1;
@@ -353,22 +330,17 @@ void trigger_screen_shake(EffectsManager *em, float intensity) {
 }
 
 void init_game(GameState *gs) {
-    
     memset(gs->grid, 0, sizeof(gs->grid));
-    
     
     gs->score = 0;
     gs->game_over = 0;
-    
     
     gs->num_cleared_rows = 0;
     gs->num_cleared_cols = 0;
     memset(gs->cleared_rows, 0, sizeof(gs->cleared_rows));
     memset(gs->cleared_cols, 0, sizeof(gs->cleared_cols));
     
-    
     init_effects(&gs->effects);
-    
     
     generate_pieces(gs);
 }
@@ -391,11 +363,9 @@ int can_place(GameState *gs, int row, int col, Piece *p) {
                 int gr = row + i;
                 int gc = col + j;
                 
-                
                 if (gr < 0 || gr >= GRID_H || gc < 0 || gc >= GRID_W) {
                     return 0;
                 }
-                
                 
                 if (gs->grid[gr][gc] != 0) {
                     return 0;
@@ -411,24 +381,19 @@ void place_piece_logic(GameState *gs, int row, int col, Piece *p) {
     int i, j;
     int lines_cleared = 0;
     
-    
     gs->num_cleared_rows = 0;
     gs->num_cleared_cols = 0;
-    
     
     for (i = 0; i < p->h; i++) {
         for (j = 0; j < p->w; j++) {
             if (p->data[i][j]) {
                 gs->grid[row + i][col + j] = p->color;
-                
                 spawn_place_effect(&gs->effects, row + i, col + j, p->color);
             }
         }
     }
     
-    
     gs->score += 10;
-    
     
     for (i = 0; i < GRID_H; i++) {
         int full = 1;
@@ -439,19 +404,15 @@ void place_piece_logic(GameState *gs, int row, int col, Piece *p) {
             }
         }
         if (full) {
-            
             gs->cleared_rows[gs->num_cleared_rows++] = i;
             
-            
             spawn_line_clear_effect(&gs->effects, i, -1, 1);
-            
             
             for (j = 0; j < GRID_W; j++) {
                 int px = GRID_OFFSET_X + j * BLOCK_SIZE + BLOCK_SIZE / 2;
                 int py = GRID_OFFSET_Y + i * BLOCK_SIZE + BLOCK_SIZE / 2;
                 spawn_particles(&gs->effects, px, py, gs->grid[i][j], 5);
             }
-            
             
             for (j = 0; j < GRID_W; j++) {
                 gs->grid[i][j] = 0;
@@ -460,7 +421,6 @@ void place_piece_logic(GameState *gs, int row, int col, Piece *p) {
             lines_cleared++;
         }
     }
-    
     
     for (j = 0; j < GRID_W; j++) {
         int full = 1;
@@ -471,19 +431,15 @@ void place_piece_logic(GameState *gs, int row, int col, Piece *p) {
             }
         }
         if (full) {
-            
             gs->cleared_cols[gs->num_cleared_cols++] = j;
             
-            
             spawn_line_clear_effect(&gs->effects, -1, j, 0);
-            
             
             for (i = 0; i < GRID_H; i++) {
                 int px = GRID_OFFSET_X + j * BLOCK_SIZE + BLOCK_SIZE / 2;
                 int py = GRID_OFFSET_Y + i * BLOCK_SIZE + BLOCK_SIZE / 2;
                 spawn_particles(&gs->effects, px, py, gs->grid[i][j], 5);
             }
-            
             
             for (i = 0; i < GRID_H; i++) {
                 gs->grid[i][j] = 0;
@@ -493,10 +449,8 @@ void place_piece_logic(GameState *gs, int row, int col, Piece *p) {
         }
     }
     
-    
     if (lines_cleared > 0) {
         trigger_screen_shake(&gs->effects, (float)lines_cleared * 0.5f);
-        
         
         if (lines_cleared >= 2) {
             int center_x = GRID_OFFSET_X + (GRID_W * BLOCK_SIZE) / 2;
@@ -527,4 +481,3 @@ int check_valid_moves_exist(GameState *gs) {
     
     return 0;
 }
-

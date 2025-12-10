@@ -72,7 +72,16 @@ echo ">>> Compiling CLIENT..."
 CLIENT_OUTPUT=$(gcc -std=c99 -Wall -Wextra \
     $SDL_INCLUDE \
     $SDL_LIBPATH \
-    client/main.c client/game.c client/net_client.c \
+    client/main.c \
+    client/globals.c \
+    client/save_system.c \
+    client/audio.c \
+    client/graphics.c \
+    client/ui_components.c \
+    client/screens.c \
+    client/input_handlers.c \
+    client/game.c \
+    client/net_client.c \
     -o bin/blockblast${EXE_EXT} \
     $SDL_FLAGS $SOCKET_LIB -lm 2>&1)
 CLIENT_RESULT=$?
