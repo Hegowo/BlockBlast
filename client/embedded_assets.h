@@ -22,6 +22,9 @@ extern const size_t sound_gameover_size;
 extern const unsigned char sound_click_data[];
 extern const size_t sound_click_size;
 
+extern const unsigned char sound_victory_data[];
+extern const size_t sound_victory_size;
+
 extern const unsigned char sound_music_data[];
 extern const size_t sound_music_size;
 
@@ -40,6 +43,8 @@ extern const size_t sound_music_size;
 #define sound_gameover_size 0
 #define sound_click_data NULL
 #define sound_click_size 0
+#define sound_victory_data NULL
+#define sound_victory_size 0
 #define sound_music_data NULL
 #define sound_music_size 0
 

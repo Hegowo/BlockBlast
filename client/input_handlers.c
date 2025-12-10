@@ -387,11 +387,19 @@ void handle_game_click(int is_multi) {
                 memcpy(pkt.grid_data, game.grid, sizeof(game.grid));
                 pkt.score = game.score;
                 net_send(&pkt);
-            }
-            
-            if (!check_valid_moves_exist(&game)) {
-                game.game_over = 1;
-                play_gameover();
+                
+                if (current_lobby.game_mode == GAME_MODE_CLASSIC && !check_valid_moves_exist(&game)) {
+                    memset(&pkt, 0, sizeof(pkt));
+                    pkt.type = MSG_GAME_OVER;
+                    strcpy(pkt.text, my_pseudo);
+                    pkt.score = game.score;
+                    net_send(&pkt);
+                }
+            } else {
+                if (!check_valid_moves_exist(&game)) {
+                    game.game_over = 1;
+                    play_gameover();
+                }
             }
         }
         
@@ -491,6 +499,17 @@ void process_network(void) {
             case MSG_UPDATE_GRID:
                 memcpy(game.grid, pkt.grid_data, sizeof(game.grid));
                 strcpy(current_turn_pseudo, pkt.turn_pseudo);
+                
+                if (current_lobby.game_mode == GAME_MODE_CLASSIC && is_my_turn() && !is_spectator) {
+                    if (!check_valid_moves_exist(&game)) {
+                        Packet game_over_pkt;
+                        memset(&game_over_pkt, 0, sizeof(game_over_pkt));
+                        game_over_pkt.type = MSG_GAME_OVER;
+                        strcpy(game_over_pkt.text, my_pseudo);
+                        game_over_pkt.score = game.score;
+                        net_send(&game_over_pkt);
+                    }
+                }
                 break;
             
             case MSG_RUSH_UPDATE:
@@ -510,7 +529,18 @@ void process_network(void) {
                 break;
             
             case MSG_GAME_END:
-                rush_time_remaining = 0;
+                if (current_lobby.game_mode == GAME_MODE_RUSH) {
+                    rush_time_remaining = 0;
+                } else {
+                    strcpy(multi_winner_name, pkt.turn_pseudo);
+                    if (strcmp(my_pseudo, pkt.turn_pseudo) == 0) {
+                        multi_game_over = 2;
+                        play_victory();
+                    } else {
+                        multi_game_over = 1;
+                        play_gameover();
+                    }
+                }
                 break;
             
             case MSG_SERVER_LIST_REP:

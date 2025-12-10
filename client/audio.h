@@ -7,6 +7,7 @@ extern Mix_Chunk *snd_place;
 extern Mix_Chunk *snd_clear;
 extern Mix_Chunk *snd_gameover;
 extern Mix_Chunk *snd_click;
+extern Mix_Chunk *snd_victory;
 extern Mix_Music *music_bg;
 
 void init_audio(void);
@@ -17,6 +18,7 @@ void play_click(void);
 void play_place(void);
 void play_clear(void);
 void play_gameover(void);
+void play_victory(void);
 
 void start_music(void);
 void stop_music(void);

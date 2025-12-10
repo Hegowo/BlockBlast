@@ -83,6 +83,9 @@ extern int rush_player_count;
 extern int rush_time_remaining;
 extern Uint32 last_time_update;
 
+extern int multi_game_over;
+extern char multi_winner_name[32];
+
 extern int music_volume;
 extern int sfx_volume;
 extern int audio_enabled;

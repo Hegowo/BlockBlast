@@ -751,6 +751,82 @@ void render_multi_game(void) {
     if (is_my_turn() && !is_spectator) {
         render_dragged_piece();
     }
+    
+    if (multi_game_over == 1) {
+        fill_rect(0, 0, window_w, window_h, darken_color(COLOR_BG, 0.6f));
+        
+        int panel_x = 40;
+        int panel_y = window_h / 2 - 100;
+        int panel_w = window_w - 80;
+        int panel_h = 200;
+        
+        for (i = 8; i > 0; i--) {
+            float alpha = (float)(8 - i + 1) / 9.0f * 0.2f;
+            Uint32 glow_color = darken_color(COLOR_NEON_RED, alpha);
+            fill_rect(panel_x - i, panel_y - i, panel_w + i * 2, panel_h + i * 2, glow_color);
+        }
+        
+        fill_rect(panel_x, panel_y, panel_w, panel_h, COLOR_PANEL);
+        fill_rect(panel_x, panel_y, panel_w, 3, COLOR_NEON_RED);
+        fill_rect(panel_x, panel_y + panel_h - 3, panel_w, 3, COLOR_NEON_RED);
+        fill_rect(panel_x, panel_y, 3, panel_h, COLOR_NEON_RED);
+        fill_rect(panel_x + panel_w - 3, panel_y, 3, panel_h, COLOR_NEON_RED);
+        
+        draw_text(font_L, "DEFAITE", window_w / 2 + 2, window_h / 2 - 50 + 2, darken_color(COLOR_NEON_RED, 0.4f));
+        draw_text(font_L, "DEFAITE", window_w / 2, window_h / 2 - 50, COLOR_NEON_RED);
+        
+        snprintf(score_text, sizeof(score_text), "Score: %d", game.score);
+        draw_text(font_S, score_text, window_w / 2, window_h / 2, COLOR_WHITE);
+        
+        snprintf(turn_text, sizeof(turn_text), "Gagnant: %s", multi_winner_name);
+        draw_text(font_S, turn_text, window_w / 2, window_h / 2 + 35, COLOR_NEON_CYAN);
+        
+        draw_text(font_S, "Cliquez pour continuer", window_w / 2, window_h / 2 + 70, COLOR_GREY);
+    }
+    else if (multi_game_over == 2) {
+        fill_rect(0, 0, window_w, window_h, darken_color(COLOR_BG, 0.6f));
+        
+        int panel_x = 40;
+        int panel_y = window_h / 2 - 120;
+        int panel_w = window_w - 80;
+        int panel_h = 240;
+        
+        for (i = 8; i > 0; i--) {
+            float alpha = (float)(8 - i + 1) / 9.0f * 0.2f;
+            Uint32 glow_color = darken_color(COLOR_GOLD, alpha);
+            fill_rect(panel_x - i, panel_y - i, panel_w + i * 2, panel_h + i * 2, glow_color);
+        }
+        
+        fill_rect(panel_x, panel_y, panel_w, panel_h, COLOR_PANEL);
+        fill_rect(panel_x, panel_y, panel_w, 3, COLOR_GOLD);
+        fill_rect(panel_x, panel_y + panel_h - 3, panel_w, 3, COLOR_GOLD);
+        fill_rect(panel_x, panel_y, 3, panel_h, COLOR_GOLD);
+        fill_rect(panel_x + panel_w - 3, panel_y, 3, panel_h, COLOR_GOLD);
+        
+        {
+            int cx = window_w / 2;
+            int cy = window_h / 2 - 70;
+            float pulse = (sinf(glow_pulse * 3.0f) + 1.0f) * 0.5f;
+            Uint32 crown_color = blend_colors(COLOR_GOLD, 0xFFFFFF, pulse * 0.3f);
+            
+            fill_rect(cx - 40, cy, 80, 20, crown_color);
+            fill_rect(cx - 50, cy - 25, 15, 25, crown_color);
+            fill_rect(cx - 8, cy - 35, 16, 35, crown_color);
+            fill_rect(cx + 35, cy - 25, 15, 25, crown_color);
+            
+            fill_rect(cx - 50, cy - 30, 15, 8, darken_color(crown_color, 0.8f));
+            fill_rect(cx - 8, cy - 42, 16, 10, darken_color(crown_color, 0.8f));
+            fill_rect(cx + 35, cy - 30, 15, 8, darken_color(crown_color, 0.8f));
+        }
+        
+        draw_text(font_L, "VICTOIRE!", window_w / 2 + 2, window_h / 2 - 10 + 2, darken_color(COLOR_GOLD, 0.4f));
+        draw_text(font_L, "VICTOIRE!", window_w / 2, window_h / 2 - 10, COLOR_GOLD);
+        
+        snprintf(score_text, sizeof(score_text), "Score: %d", game.score);
+        draw_text(font_S, score_text, window_w / 2, window_h / 2 + 40, COLOR_WHITE);
+        
+        draw_text(font_S, "Cliquez pour continuer", window_w / 2, window_h / 2 + 80, COLOR_GREY);
+    }
 }
 
 void render_rush_game(void) {

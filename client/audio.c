@@ -7,6 +7,7 @@ Mix_Chunk *snd_place = NULL;
 Mix_Chunk *snd_clear = NULL;
 Mix_Chunk *snd_gameover = NULL;
 Mix_Chunk *snd_click = NULL;
+Mix_Chunk *snd_victory = NULL;
 Mix_Music *music_bg = NULL;
 
 static Mix_Chunk* load_sound_embedded_or_file(const unsigned char *data, size_t size, const char *path1, const char *path2, const char *path3) {
@@ -68,6 +69,10 @@ void init_audio(void) {
         "assets/sounds/click.wav", "../assets/sounds/click.wav", "assets/click.wav");
     if (!snd_click) printf("WARNING: Could not load click.wav: %s\n", Mix_GetError());
     
+    snd_victory = load_sound_embedded_or_file(sound_victory_data, sound_victory_size,
+        "assets/sounds/victory.wav", "../assets/sounds/victory.wav", "assets/victory.wav");
+    if (!snd_victory) printf("WARNING: Could not load victory.wav: %s\n", Mix_GetError());
+    
 #ifdef EMBED_ASSETS
     if (sound_music_data && sound_music_size > 0) {
         SDL_RWops *rw = SDL_RWFromConstMem(sound_music_data, (int)sound_music_size);
@@ -109,6 +114,7 @@ void init_audio(void) {
     if (snd_clear) printf("  - clear.wav loaded\n");
     if (snd_gameover) printf("  - gameover.wav loaded\n");
     if (snd_click) printf("  - click.wav loaded\n");
+    if (snd_victory) printf("  - victory.wav loaded\n");
     if (music_bg) {
         printf("  - background music loaded\n");
     } else {
@@ -121,6 +127,7 @@ void cleanup_audio(void) {
     if (snd_clear) Mix_FreeChunk(snd_clear);
     if (snd_gameover) Mix_FreeChunk(snd_gameover);
     if (snd_click) Mix_FreeChunk(snd_click);
+    if (snd_victory) Mix_FreeChunk(snd_victory);
     if (music_bg) Mix_FreeMusic(music_bg);
     
     Mix_CloseAudio();
@@ -150,6 +157,11 @@ void play_clear(void) {
 void play_gameover(void) {
     Mix_PauseMusic();
     play_sound(snd_gameover);
+}
+
+void play_victory(void) {
+    Mix_PauseMusic();
+    play_sound(snd_victory);
 }
 
 void resume_music(void) {

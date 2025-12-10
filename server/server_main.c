@@ -719,6 +719,56 @@ static void process_packet(int client_idx, Packet *pkt) {
             send_room_update(room_idx);
             break;
         
+        case MSG_GAME_OVER:
+            room_idx = clients[client_idx].room_idx;
+            if (room_idx < 0) break;
+            
+            room = &rooms[room_idx];
+            
+            if (!room->game_running) break;
+            if (room->game_mode != GAME_MODE_CLASSIC) break;
+            
+            {
+                int loser_idx = -1;
+                int winner_idx = -1;
+                
+                for (i = 0; i < room->count; i++) {
+                    if (room->client_ids[i] == client_idx) {
+                        loser_idx = i;
+                        break;
+                    }
+                }
+                
+                if (loser_idx < 0) break;
+                
+                for (i = 0; i < room->count; i++) {
+                    if (i != loser_idx && !room->is_spectator[i]) {
+                        winner_idx = i;
+                        break;
+                    }
+                }
+                
+                if (winner_idx < 0) break;
+                
+                save_score(clients[client_idx].pseudo, pkt->score);
+                
+                memset(&reply, 0, sizeof(reply));
+                reply.type = MSG_GAME_END;
+                strcpy(reply.turn_pseudo, clients[room->client_ids[winner_idx]].pseudo);
+                strcpy(reply.text, clients[client_idx].pseudo);
+                reply.score = pkt->score;
+                
+                broadcast_to_room(room_idx, &reply);
+                
+                room->game_running = 0;
+                
+                printf("Classic game ended in room %s. Winner: %s, Loser: %s\n", 
+                       room->code, 
+                       clients[room->client_ids[winner_idx]].pseudo,
+                       clients[client_idx].pseudo);
+            }
+            break;
+        
         default:
             break;
     }

@@ -229,6 +229,8 @@ int main(int argc, char *argv[]) {
                             net_close();
                             current_state = ST_MENU;
                             is_spectator = 0;
+                            multi_game_over = 0;
+                            multi_winner_name[0] = '\0';
                         } else if (current_state != ST_MENU) {
                             net_close();
                             current_state = ST_MENU;
@@ -330,7 +332,15 @@ int main(int argc, char *argv[]) {
                                 }
                                 break;
                             case ST_MULTI_GAME:
-                                if (point_in_rect(mouse_x, mouse_y, window_w - 50, 20, 28, 28)) {
+                                if (multi_game_over > 0) {
+                                    play_click();
+                                    multi_game_over = 0;
+                                    multi_winner_name[0] = '\0';
+                                    net_close();
+                                    current_state = ST_MENU;
+                                    is_spectator = 0;
+                                    resume_music();
+                                } else if (point_in_rect(mouse_x, mouse_y, window_w - 50, 20, 28, 28)) {
                                     play_click();
                                     show_settings_overlay = 1;
                                     settings_tab = 0;

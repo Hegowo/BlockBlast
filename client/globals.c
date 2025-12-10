@@ -53,6 +53,9 @@ int rush_player_count = 0;
 int rush_time_remaining = 0;
 Uint32 last_time_update = 0;
 
+int multi_game_over = 0;
+char multi_winner_name[32] = "";
+
 int music_volume = 80;
 int sfx_volume = 100;
 int audio_enabled = 0;

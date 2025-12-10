@@ -11,6 +11,7 @@ $Assets = @(
     @{ Name = "sound_clear"; Path = "assets/sounds/clear.wav" },
     @{ Name = "sound_gameover"; Path = "assets/sounds/gameover.wav" },
     @{ Name = "sound_click"; Path = "assets/sounds/click.wav" },
+    @{ Name = "sound_victory"; Path = "assets/sounds/victory.wav" },
     @{ Name = "sound_music"; Path = "assets/sounds/music.wav" }
 )
 
@@ -124,6 +125,8 @@ $HeaderContent += @"
 #define sound_gameover_size 0
 #define sound_click_data NULL
 #define sound_click_size 0
+#define sound_victory_data NULL
+#define sound_victory_size 0
 #define sound_music_data NULL
 #define sound_music_size 0
 
