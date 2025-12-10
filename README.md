@@ -1,176 +1,331 @@
-# BlockBlast V4.0
+# 🎮 BlockBlast V4.0
 
-A block placement puzzle game written in C99 with SDL 1.2, featuring solo mode and online multiplayer.
+Un jeu de puzzle de placement de blocs écrit en C99 avec SDL 1.2, avec mode solo et multijoueur en ligne.
 
-## Features
+![Version](https://img.shields.io/badge/version-4.0-blue)
+![Language](https://img.shields.io/badge/language-C99-green)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
 
-- **Solo Mode**: Classic block placement puzzle with scoring
-- **Online Multiplayer**: Turn-based gameplay on a shared grid with lobby system
-- **Cross-platform**: Works on Windows (MinGW/Winsock) and Linux (GCC/BSD Sockets)
-- **Custom UI**: Hand-built interface with buttons, text input fields, and mobile-style graphics
+## ✨ Fonctionnalités
 
-## Requirements
+### Modes de jeu
+- **Mode Solo** : Puzzle classique avec sauvegarde automatique
+- **Mode Classique** : Multijoueur tour par tour sur une grille partagée
+- **Mode Rush** : Multijoueur chronométré où chaque joueur a sa propre grille
+
+### Multijoueur
+- Système de salons avec codes à 4 caractères
+- Liste des serveurs publics (browser)
+- Mode spectateur
+- Leaderboard persistant
+- Jusqu'à 4 joueurs par salon
+
+### Audio & Visuel
+- Interface cyberpunk/néon avec animations
+- Effets sonores (placement, clear, game over)
+- Musique de fond
+- Volumes ajustables (musique et SFX)
+
+### Technique
+- **Build Standalone** : Tous les assets embarqués dans l'exécutable
+- Sauvegarde/chargement automatique des parties
+- Cross-platform : Windows (MinGW) et Linux (GCC)
+- Fenêtre redimensionnable
+
+---
+
+## 📋 Prérequis
 
 ### Windows (MSYS2/MinGW64)
 
 ```bash
-pacman -S mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_ttf mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-SDL mingw-w64-x86_64-SDL_ttf mingw-w64-x86_64-SDL_mixer mingw-w64-x86_64-SDL_image mingw-w64-x86_64-gcc
 ```
 
 ### Linux (Debian/Ubuntu)
 
 ```bash
-sudo apt-get install libsdl1.2-dev libsdl-ttf2.0-dev gcc
+sudo apt-get install libsdl1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev libsdl-image1.2-dev gcc
 ```
 
-### Linux (Fedora)
+---
 
-```bash
-sudo dnf install SDL-devel SDL_ttf-devel gcc
+## 🔧 Compilation
+
+### Build Standard (assets externes)
+
+```powershell
+# Windows PowerShell
+.\build.ps1
 ```
 
-## Font Setup
-
-You need to provide a TTF font file at `assets/font.ttf`. Any TTF font will work:
-
-- [DejaVu Sans](https://dejavu-fonts.github.io/)
-- [Roboto](https://fonts.google.com/specimen/Roboto)
-- [Open Sans](https://fonts.google.com/specimen/Open+Sans)
-
 ```bash
-mkdir -p assets
-# Copy your font file to assets/font.ttf
-```
-
-## Building
-
-### Using the Build Script
-
-```bash
-chmod +x build.sh
+# Linux
 ./build.sh
 ```
 
-### Manual Compilation
+### Build Standalone (assets embarqués) ⭐
 
-#### Windows (MSYS2)
-
-```bash
-# Server
-gcc -std=c99 server/server_main.c -o bin/blockblast_server.exe -lws2_32
-
-# Client
-gcc -std=c99 -I/mingw64/include/SDL -L/mingw64/lib \
-    client/main.c client/game.c client/net_client.c \
-    -o bin/blockblast.exe \
-    -lmingw32 -lSDLmain -lSDL -lSDL_ttf -lws2_32
+```powershell
+# Crée un exécutable autonome avec tous les assets intégrés
+.\build.ps1 -Embedded
 ```
 
-#### Linux
+Cette option :
+1. Convertit tous les assets (fonts, sons) en code C
+2. Compile le tout dans un seul exécutable
+3. **Pas besoin du dossier `assets/`** pour distribuer !
 
-```bash
-# Server
-gcc -std=c99 server/server_main.c -o bin/blockblast_server
+### Options de build
 
-# Client
-gcc -std=c99 $(sdl-config --cflags) \
-    client/main.c client/game.c client/net_client.c \
-    -o bin/blockblast \
-    -lSDL -lSDL_ttf
+| Option | Description |
+|--------|-------------|
+| `-Embedded` | Embarque tous les assets dans l'exe |
+| `-Clean` | Nettoie le dossier bin/ avant compilation |
+
+---
+
+## 📁 Structure du Projet
+
+```
+BlockBlast/
+├── 📁 assets/
+│   ├── font.ttf                 # Police par défaut
+│   ├── orbitron.ttf             # Police néon (Google Fonts)
+│   └── 📁 sounds/
+│       ├── click.wav            # Son de clic
+│       ├── place.wav            # Son de placement
+│       ├── clear.wav            # Son de ligne complétée
+│       ├── gameover.wav         # Son de fin de partie
+│       └── music.wav            # Musique de fond
+│
+├── 📁 client/
+│   ├── main.c                   # Point d'entrée, boucle principale
+│   ├── globals.c/h              # Variables globales
+│   ├── game.c/h                 # Logique de jeu (grille, pièces)
+│   ├── graphics.c/h             # Rendu graphique de base
+│   ├── ui_components.c/h        # Composants UI (boutons, sliders)
+│   ├── screens.c/h              # Écrans (menu, lobby, jeu...)
+│   ├── input_handlers.c/h       # Gestion des entrées
+│   ├── audio.c/h                # Système audio
+│   ├── save_system.c/h          # Sauvegarde/chargement
+│   ├── net_client.c/h           # Client réseau
+│   └── embedded_assets.c/h      # Assets embarqués (généré)
+│
+├── 📁 server/
+│   └── server_main.c            # Serveur de jeu
+│
+├── 📁 common/
+│   ├── config.h                 # Constantes partagées
+│   └── net_protocol.h           # Protocole réseau
+│
+├── 📁 tools/
+│   └── bin2c.c                  # Outil de conversion assets→C
+│
+├── 📁 bin/                      # Exécutables compilés
+│
+├── build.ps1                    # Script de build Windows
+├── build.sh                     # Script de build Linux
+├── embed_assets.ps1             # Générateur d'assets embarqués
+└── README.md
 ```
 
-## Running
+---
 
-### Start the Server
+## 🚀 Utilisation
+
+### Lancer le Serveur
 
 ```bash
 ./bin/blockblast_server
 ```
 
-The server listens on port 5000 by default.
+Le serveur affiche automatiquement :
+- Le port d'écoute (défaut: 5000)
+- Toutes les adresses IP locales disponibles
+- Les instructions pour rejoindre
 
-### Start the Client
+```
+========================================
+     BLOCKBLAST SERVER STARTED
+========================================
+
+  Port: 5000
+
+  Adresses IP disponibles:
+    - 192.168.1.180
+    - ...
+
+  Pour rejoindre, les joueurs doivent:
+    1. Lancer BlockBlast
+    2. Entrer l'IP du serveur
+    3. Entrer le port: 5000
+========================================
+```
+
+### Lancer le Client
 
 ```bash
 ./bin/blockblast
 ```
 
-## Gameplay
+---
 
-### Solo Mode
+## 🎮 Contrôles
 
-1. Click "SOLO" from the main menu
-2. Drag pieces from the bottom to place them on the grid
-3. Complete rows or columns to clear them and earn points
-4. Game ends when no valid moves remain
+| Action | Contrôle |
+|--------|----------|
+| Sélectionner/Placer | Clic gauche |
+| Expulser joueur (hôte) | Clic droit |
+| Paramètres | Touche `P` |
+| Menu pause / Retour | Touche `Échap` |
+| Navigation spectateur | Flèches ← → |
 
-### Multiplayer Mode
+---
 
-1. Click "MULTI ONLINE" to connect to the server
-2. Enter your username
-3. Create a room or join with a 4-character code
-4. Host can start the game when 2+ players are present
-5. Take turns placing pieces on the shared grid
-6. Scores are saved to the server leaderboard
+## 🎯 Gameplay
 
-## Controls
+### Mode Solo
 
-- **Left Click**: Select and place pieces, click buttons
-- **Right Click**: Kick players (host only in lobby)
-- **Escape**: Return to previous menu
+1. Cliquez "SOLO" depuis le menu principal
+2. Glissez les pièces du bas vers la grille
+3. Complétez des lignes/colonnes pour les effacer
+4. Le jeu se sauvegarde automatiquement
+5. Partie terminée quand aucun coup n'est possible
 
-## Configuration
+### Mode Multijoueur Classique
 
-In the OPTIONS menu, you can configure:
-- Server IP address (default: 127.0.0.1)
-- Server port (default: 5000)
+1. Connectez-vous au serveur (Options → IP/Port)
+2. Créez un salon ou rejoignez avec un code
+3. L'hôte démarre quand 2+ joueurs sont présents
+4. Placez vos pièces à tour de rôle sur la grille commune
 
-Test the connection before saving.
+### Mode Rush
 
-## Project Structure
+1. Choisissez le mode "Rush" dans le lobby
+2. Définissez la durée (1-5 minutes)
+3. Chaque joueur a sa propre grille
+4. Celui avec le plus de points à la fin gagne !
 
+---
+
+## ⚙️ Configuration
+
+### Options du jeu (touche P)
+
+- **Volume Musique** : 0-100%
+- **Volume SFX** : 0-100%
+- **IP Serveur** : Adresse du serveur multijoueur
+- **Port** : Port du serveur (défaut: 5000)
+
+### Paramètres du Lobby (hôte)
+
+- **Mode de jeu** : Classique / Rush
+- **Durée** (Rush) : 1, 2, 3, 4, ou 5 minutes
+- **Visibilité** : Public / Privé
+
+---
+
+## 📦 Distribution
+
+### Build Standard
+
+Distribuez ces fichiers :
 ```
-BlockBlast/
-├── assets/
-│   └── font.ttf              # TTF font file (user provided)
-├── client/
-│   ├── main.c                # Client entry point, UI, game loop
-│   ├── game.c/game.h         # Game logic (grid, pieces)
-│   └── net_client.c/net_client.h  # Client socket management
-├── server/
-│   └── server_main.c         # Server logic, room management
-├── common/
-│   ├── config.h              # Shared constants
-│   └── net_protocol.h        # Network packet definitions
-├── build.sh                  # Build script
-└── README.md                 # This file
+📁 BlockBlast/
+├── blockblast.exe
+├── blockblast_server.exe
+├── SDL.dll
+├── SDL_ttf.dll
+├── SDL_mixer.dll
+└── 📁 assets/
+    └── (tous les fichiers)
 ```
 
-## Technical Details
+### Build Standalone (-Embedded) ⭐
 
-- **Language**: C99 standard
-- **Graphics**: SDL 1.2 with SDL_ttf for text rendering
-- **Networking**: TCP sockets with binary protocol
-- **Grid**: 10x10 cells, 40 pixels per cell
-- **Window**: 540x960 pixels (mobile-style portrait)
+Distribuez uniquement :
+```
+📁 BlockBlast/
+├── blockblast.exe       (9+ MB, contient tout)
+├── blockblast_server.exe
+├── SDL.dll
+├── SDL_ttf.dll
+└── SDL_mixer.dll
+```
 
-## Piece Types
+Les DLLs SDL se trouvent dans : `C:\msys64\mingw64\bin\`
 
-| Shape | Size | Color |
-|-------|------|-------|
-| Single block | 1x1 | Red |
-| Horizontal bar | 2x1 | Green |
-| Long bar | 3x1 | Blue |
-| Square | 2x2 | Yellow |
-| T-shape | 2x3 | Magenta |
+---
 
-## Scoring
+## 🧩 Types de Pièces
 
-- Place a piece: +10 points
-- Clear a row: +100 points
-- Clear a column: +100 points
+| Forme | Taille | Couleur |
+|-------|--------|---------|
+| Bloc simple | 1×1 | Rouge |
+| Barre horizontale | 2×1 | Vert |
+| Barre longue | 3×1 | Bleu |
+| Grande barre | 4×1 | Cyan |
+| Grande barre | 5×1 | Orange |
+| Carré | 2×2 | Jaune |
+| Grand carré | 3×3 | Rose |
+| Forme en L | Variable | Magenta |
+| Forme en T | Variable | Violet |
 
-## License
+---
 
-This project is provided as-is for educational purposes.
+## 📊 Scoring
 
+| Action | Points |
+|--------|--------|
+| Placer une pièce | +10 |
+| Effacer une ligne | +100 |
+| Effacer une colonne | +100 |
+| Combo (plusieurs lignes) | Bonus multiplicateur |
+
+---
+
+## 🔧 Détails Techniques
+
+- **Langage** : C99
+- **Graphiques** : SDL 1.2 + SDL_ttf + SDL_mixer + SDL_image
+- **Réseau** : Sockets TCP avec protocole binaire
+- **Grille** : 10×10 cellules
+- **Fenêtre** : 540×960 (redimensionnable)
+- **Port serveur** : 5000 (configurable dans config.h)
+
+---
+
+## 🐛 Dépannage
+
+### Le jeu ne se lance pas
+
+1. Vérifiez que les DLLs SDL sont présentes
+2. En mode standard, vérifiez le dossier `assets/`
+3. Lancez depuis un terminal pour voir les erreurs
+
+### Impossible de rejoindre le serveur
+
+1. Vérifiez l'IP et le port dans les options
+2. Le serveur doit être lancé en premier
+3. Vérifiez votre pare-feu
+4. Utilisez l'IP locale (192.168.x.x) pour le réseau local
+
+### Pas de son
+
+1. Vérifiez les volumes dans les paramètres (touche P)
+2. Vérifiez que les fichiers `.wav` sont présents (mode standard)
+
+---
+
+## 📝 Licence
+
+Ce projet est fourni à des fins éducatives.
+
+---
+
+## 🙏 Crédits
+
+- **SDL** : Simple DirectMedia Layer
+- **Police Orbitron** : Google Fonts
+- Développé avec ❤️ en C99
