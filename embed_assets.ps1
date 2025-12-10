@@ -13,7 +13,7 @@ $Assets = @(
 )
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  BLOCKBLAST - Asset Embedder" -ForegroundColor Cyan
+Write-Host "  BLOCKBLAST - Integrateur d'assets" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -25,13 +25,13 @@ if (!(Test-Path "tools")) {
 }
 
 if (!(Test-Path $bin2cExe) -or ((Get-Item $bin2cSrc -ErrorAction SilentlyContinue).LastWriteTime -gt (Get-Item $bin2cExe -ErrorAction SilentlyContinue).LastWriteTime)) {
-    Write-Host "Compiling bin2c tool..." -ForegroundColor Yellow
+    Write-Host "Compilation de l'outil bin2c..." -ForegroundColor Yellow
     $result = & gcc -O2 $bin2cSrc -o $bin2cExe 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[ERROR] Failed to compile bin2c: $result" -ForegroundColor Red
+        Write-Host "[ERREUR] Echec de la compilation de bin2c : $result" -ForegroundColor Red
         exit 1
     }
-    Write-Host "[OK] bin2c compiled" -ForegroundColor Green
+    Write-Host "[OK] bin2c compile" -ForegroundColor Green
 }
 
 $TempDir = "tools/temp_assets"
@@ -67,7 +67,7 @@ foreach ($Asset in $Assets) {
         $FileSize = (Get-Item $Path).Length
         $FileSizeKB = [math]::Round($FileSize / 1024, 1)
         
-        Write-Host -NoNewline "Converting $Path ($FileSizeKB KB)... "
+        Write-Host -NoNewline "Conversion de $Path ($FileSizeKB Ko)... "
         
         $result = & $bin2cExe $Path $TempFile $Name 2>&1
         
@@ -82,12 +82,12 @@ foreach ($Asset in $Assets) {
             
             $TotalSize += $FileSize
         } else {
-            Write-Host "[FAILED]" -ForegroundColor Red
+            Write-Host "[ECHEC]" -ForegroundColor Red
             Write-Host $result
         }
     }
     else {
-        Write-Host "[SKIP] $Path (not found)" -ForegroundColor Yellow
+        Write-Host "[IGNORE] $Path (non trouve)" -ForegroundColor Yellow
         
         $HeaderContent += "extern const unsigned char ${Name}_data[];`n"
         $HeaderContent += "extern const size_t ${Name}_size;`n`n"
@@ -134,12 +134,12 @@ $SourceContent += @"
 Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "[DONE] Files generated:" -ForegroundColor Green
+Write-Host "[TERMINE] Fichiers generes :" -ForegroundColor Green
 Write-Host "  - $OutputHeader" -ForegroundColor White
 Write-Host "  - $OutputSource" -ForegroundColor White
 
 $TotalSizeKB = [math]::Round($TotalSize / 1024, 2)
 $TotalSizeMB = [math]::Round($TotalSize / 1024 / 1024, 2)
 Write-Host ""
-Write-Host "Total assets size: $TotalSizeKB KB ($TotalSizeMB MB)" -ForegroundColor Cyan
+Write-Host "Taille totale des assets : $TotalSizeKB Ko ($TotalSizeMB Mo)" -ForegroundColor Cyan
 Write-Host ""

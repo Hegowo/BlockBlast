@@ -1,21 +1,15 @@
 #!/bin/bash
 
-# BlockBlast Build Script
-# Supports both Windows (MinGW/MSYS2) and Linux
-# Neon/Cyberpunk Edition
-
 echo "========================================="
-echo "     BLOCKBLAST BUILD SCRIPT"
-echo "     (Neon/Cyberpunk Edition)"
+echo "     SCRIPT DE COMPILATION BLOCKBLAST"
+echo "     (Edition Neon/Cyberpunk)"
 echo "========================================="
 
-# Detect OS
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "mingw"* ]] || [[ "$OSTYPE" == "cygwin"* ]] || [[ -n "$WINDIR" ]]; then
     OS="windows"
     EXE_EXT=".exe"
     SOCKET_LIB="-lws2_32"
     SDL_FLAGS="-lmingw32 -lSDLmain -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer"
-    # Try to detect MSYS2 MinGW64 paths
     if [ -d "/mingw64/include/SDL" ]; then
         SDL_INCLUDE="-I/mingw64/include/SDL"
         SDL_LIBPATH="-L/mingw64/lib"
@@ -35,16 +29,14 @@ else
     SDL_LIBPATH=""
 fi
 
-echo "Detected OS: $OS"
-echo "SDL Include: $SDL_INCLUDE"
-echo "SDL LibPath: $SDL_LIBPATH"
+echo "Systeme detecte : $OS"
+echo "SDL Include : $SDL_INCLUDE"
+echo "SDL LibPath : $SDL_LIBPATH"
 echo ""
 
-# Create output directory
 mkdir -p bin
 
-# Compile Server
-echo ">>> Compiling SERVER..."
+echo ">>> Compilation du SERVEUR..."
 SERVER_OUTPUT=$(gcc -std=c99 -Wall -Wextra \
     server/server_main.c \
     -o bin/blockblast_server${EXE_EXT} \
@@ -52,13 +44,13 @@ SERVER_OUTPUT=$(gcc -std=c99 -Wall -Wextra \
 SERVER_RESULT=$?
 
 if [ $SERVER_RESULT -eq 0 ]; then
-    echo "[OK] Server compiled successfully!"
+    echo "[OK] Serveur compile avec succes !"
     if [ -n "$SERVER_OUTPUT" ]; then
-        echo "Warnings:"
+        echo "Avertissements :"
         echo "$SERVER_OUTPUT"
     fi
 else
-    echo "[ERROR] Server compilation failed."
+    echo "[ERREUR] Echec de la compilation du serveur."
     echo "----------------------------------------"
     echo "$SERVER_OUTPUT"
     echo "----------------------------------------"
@@ -67,8 +59,7 @@ fi
 
 echo ""
 
-# Compile Client (with SDL_image support)
-echo ">>> Compiling CLIENT..."
+echo ">>> Compilation du CLIENT..."
 CLIENT_OUTPUT=$(gcc -std=c99 -Wall -Wextra \
     $SDL_INCLUDE \
     $SDL_LIBPATH \
@@ -87,13 +78,13 @@ CLIENT_OUTPUT=$(gcc -std=c99 -Wall -Wextra \
 CLIENT_RESULT=$?
 
 if [ $CLIENT_RESULT -eq 0 ]; then
-    echo "[OK] Client compiled successfully!"
+    echo "[OK] Client compile avec succes !"
     if [ -n "$CLIENT_OUTPUT" ]; then
-        echo "Warnings:"
+        echo "Avertissements :"
         echo "$CLIENT_OUTPUT"
     fi
 else
-    echo "[ERROR] Client compilation failed."
+    echo "[ERREUR] Echec de la compilation du client."
     echo "----------------------------------------"
     echo "$CLIENT_OUTPUT"
     echo "----------------------------------------"
@@ -102,17 +93,17 @@ fi
 
 echo ""
 echo "========================================="
-echo "     BUILD COMPLETE!"
+echo "     COMPILATION TERMINEE !"
 echo "========================================="
 echo ""
-echo "Executables created in bin/ directory:"
+echo "Executables crees dans le dossier bin/ :"
 echo "  - blockblast_server${EXE_EXT}"
 echo "  - blockblast${EXE_EXT}"
 echo ""
-echo "Required assets in assets/ directory:"
-echo "  - font.ttf (fallback font)"
-echo "  - orbitron.ttf (neon font - download from Google Fonts)"
+echo "Assets requis dans le dossier assets/ :"
+echo "  - font.ttf (police de secours)"
+echo "  - orbitron.ttf (police neon - telecharger depuis Google Fonts)"
 echo ""
-echo "To run:"
-echo "  1. Start the server:  ./bin/blockblast_server${EXE_EXT}"
-echo "  2. Start the client:  ./bin/blockblast${EXE_EXT}"
+echo "Pour lancer :"
+echo "  1. Demarrer le serveur :  ./bin/blockblast_server${EXE_EXT}"
+echo "  2. Demarrer le client :   ./bin/blockblast${EXE_EXT}"

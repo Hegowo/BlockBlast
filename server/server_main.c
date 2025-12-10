@@ -25,7 +25,18 @@
 
 #define MAX_CLIENTS 20
 #define MAX_ROOMS 10
-#define LEADERBOARD_FILE "leaderboard.txt"
+#define LEADERBOARD_FILE "leaderboard.arthur"
+#define LEADERBOARD_MAGIC 0xBB1E4D38
+#define LEADERBOARD_KEY "BL0CK_BL4ST_L34D3RB04RD_S3CR3T!"
+#define MAX_LEADERBOARD_ENTRIES 100
+
+typedef struct {
+    unsigned int magic;
+    int count;
+    char names[MAX_LEADERBOARD_ENTRIES][32];
+    int scores[MAX_LEADERBOARD_ENTRIES];
+    unsigned int checksum;
+} LeaderboardSaveData;
 
 typedef struct {
     char code[6];
@@ -68,6 +79,39 @@ typedef struct {
     int score;
 } LeaderboardEntry;
 
+static unsigned int calculate_leaderboard_checksum(LeaderboardSaveData *data) {
+    unsigned char *ptr = (unsigned char *)data;
+    unsigned int sum = 0;
+    size_t i;
+    size_t len = sizeof(LeaderboardSaveData) - sizeof(unsigned int);
+    for (i = 0; i < len; i++) {
+        sum = ((sum << 5) + sum) + ptr[i];
+    }
+    return sum ^ 0x134DB04D;
+}
+
+static void encrypt_leaderboard(unsigned char *data, size_t len) {
+    const char *key = LEADERBOARD_KEY;
+    size_t key_len = strlen(key);
+    size_t i;
+    for (i = 0; i < len; i++) {
+        data[i] ^= key[i % key_len];
+        data[i] = (unsigned char)((data[i] << 3) | (data[i] >> 5));
+        data[i] ^= (unsigned char)(i * 23);
+    }
+}
+
+static void decrypt_leaderboard(unsigned char *data, size_t len) {
+    const char *key = LEADERBOARD_KEY;
+    size_t key_len = strlen(key);
+    size_t i;
+    for (i = 0; i < len; i++) {
+        data[i] ^= (unsigned char)(i * 23);
+        data[i] = (unsigned char)((data[i] >> 3) | (data[i] << 5));
+        data[i] ^= key[i % key_len];
+    }
+}
+
 static void generate_code(char *dest) {
     static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     int i;
@@ -80,64 +124,106 @@ static void generate_code(char *dest) {
 
 static void save_score(const char *name, int score) {
     FILE *f;
-    LeaderboardEntry entries[100];
-    int count = 0;
+    LeaderboardSaveData data;
+    unsigned char *raw;
     int i, found = 0;
-    char line[128];
+    unsigned int expected_checksum;
     
-    f = fopen(LEADERBOARD_FILE, "r");
+    memset(&data, 0, sizeof(data));
+    
+    f = fopen(LEADERBOARD_FILE, "rb");
     if (f) {
-        while (fgets(line, sizeof(line), f) && count < 100) {
-            if (sscanf(line, "%31s %d", entries[count].name, &entries[count].score) == 2) {
-                count++;
+        if (fread(&data, sizeof(LeaderboardSaveData), 1, f) == 1) {
+            fclose(f);
+            
+            raw = (unsigned char *)&data;
+            decrypt_leaderboard(raw, sizeof(LeaderboardSaveData));
+            
+            if (data.magic != LEADERBOARD_MAGIC) {
+                printf("Leaderboard file corrupted (bad magic), resetting.\n");
+                memset(&data, 0, sizeof(data));
+            } else {
+                expected_checksum = data.checksum;
+                data.checksum = 0;
+                data.checksum = calculate_leaderboard_checksum(&data);
+                
+                if (data.checksum != expected_checksum) {
+                    printf("Leaderboard file corrupted (bad checksum), resetting.\n");
+                    memset(&data, 0, sizeof(data));
+                }
             }
+        } else {
+            fclose(f);
         }
-        fclose(f);
     }
     
-    for (i = 0; i < count; i++) {
-        if (strcmp(entries[i].name, name) == 0) {
-            if (score > entries[i].score) {
-                entries[i].score = score;
+    for (i = 0; i < data.count; i++) {
+        if (strcmp(data.names[i], name) == 0) {
+            if (score > data.scores[i]) {
+                data.scores[i] = score;
             }
             found = 1;
             break;
         }
     }
     
-    if (!found && count < 100) {
-        strcpy(entries[count].name, name);
-        entries[count].score = score;
-        count++;
+    if (!found && data.count < MAX_LEADERBOARD_ENTRIES) {
+        strncpy(data.names[data.count], name, 31);
+        data.names[data.count][31] = '\0';
+        data.scores[data.count] = score;
+        data.count++;
     }
     
-    f = fopen(LEADERBOARD_FILE, "w");
+    data.magic = LEADERBOARD_MAGIC;
+    data.checksum = 0;
+    data.checksum = calculate_leaderboard_checksum(&data);
+    
+    raw = (unsigned char *)&data;
+    encrypt_leaderboard(raw, sizeof(LeaderboardSaveData));
+    
+    f = fopen(LEADERBOARD_FILE, "wb");
     if (f) {
-        for (i = 0; i < count; i++) {
-            fprintf(f, "%s %d\n", entries[i].name, entries[i].score);
-        }
+        fwrite(&data, sizeof(LeaderboardSaveData), 1, f);
         fclose(f);
     }
 }
 
 static void get_leaderboard(LeaderboardData *lb) {
     FILE *f;
-    LeaderboardEntry entries[100];
-    int count = 0;
-    int i, j;
-    char line[128];
+    LeaderboardSaveData data;
+    LeaderboardEntry entries[MAX_LEADERBOARD_ENTRIES];
     LeaderboardEntry temp;
+    unsigned char *raw;
+    unsigned int expected_checksum;
+    int i, j, count = 0;
     
     memset(lb, 0, sizeof(LeaderboardData));
+    memset(&data, 0, sizeof(data));
     
-    f = fopen(LEADERBOARD_FILE, "r");
+    f = fopen(LEADERBOARD_FILE, "rb");
     if (f) {
-        while (fgets(line, sizeof(line), f) && count < 100) {
-            if (sscanf(line, "%31s %d", entries[count].name, &entries[count].score) == 2) {
-                count++;
+        if (fread(&data, sizeof(LeaderboardSaveData), 1, f) == 1) {
+            fclose(f);
+            
+            raw = (unsigned char *)&data;
+            decrypt_leaderboard(raw, sizeof(LeaderboardSaveData));
+            
+            if (data.magic == LEADERBOARD_MAGIC) {
+                expected_checksum = data.checksum;
+                data.checksum = 0;
+                data.checksum = calculate_leaderboard_checksum(&data);
+                
+                if (data.checksum == expected_checksum) {
+                    count = data.count;
+                    for (i = 0; i < count && i < MAX_LEADERBOARD_ENTRIES; i++) {
+                        strcpy(entries[i].name, data.names[i]);
+                        entries[i].score = data.scores[i];
+                    }
+                }
             }
+        } else {
+            fclose(f);
         }
-        fclose(f);
     }
     
     for (i = 0; i < count - 1; i++) {
