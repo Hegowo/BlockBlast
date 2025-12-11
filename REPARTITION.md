@@ -21,7 +21,7 @@
 
 ---
 
-## Partie 1 - Arthur (~10 min)
+## Partie 1 - Walid (~10 min)
 
 ### Theme : Architecture generale et logique de jeu
 
@@ -59,7 +59,7 @@
 
 ---
 
-## Partie 2 - Walid (~10 min)
+## Partie 2 - Nathan (~10 min)
 
 ### Theme : Interface graphique et experience utilisateur
 
@@ -103,7 +103,7 @@
 
 ---
 
-## Partie 3 - Nathan (~10 min)
+## Partie 3 - Arthur (~10 min)
 
 ### Theme : Reseau et persistance des donnees
 
