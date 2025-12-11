@@ -259,11 +259,11 @@
 
 | Temps | Action |
 |-------|--------|
-| 0:00 - 0:30 | Introduction generale (Arthur) |
-| 0:30 - 10:00 | Partie 1 - Arthur |
+| 0:00 - 0:30 | Introduction generale (Walid) |
+| 0:30 - 10:00 | Partie 1 - Walid |
 | 10:00 - 10:30 | Transition + Demo rapide |
-| 10:30 - 20:00 | Partie 2 - Walid |
+| 10:30 - 20:00 | Partie 2 - Nathan |
 | 20:00 - 20:30 | Transition |
-| 20:30 - 30:00 | Partie 3 - Nathan |
+| 20:30 - 30:00 | Partie 3 - Arthur |
 | 30:00+ | Questions du professeur |
 
