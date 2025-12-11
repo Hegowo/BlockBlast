@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #ifdef EMBED_ASSETS
+
 extern const unsigned char font_orbitron_data[];
 extern const size_t font_orbitron_size;
 
@@ -51,3 +52,4 @@ extern const size_t sound_music_size;
 #endif
 
 #endif
+
