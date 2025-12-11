@@ -98,7 +98,7 @@
 2. **Logique de jeu**
    - Structure de la grille 8x8
    - Systeme de pieces : 19 formes differentes
-   - Detection de placement valide (`can_place_piece`)
+   - Detection de placement valide (`can_place`)
    - Detection et suppression des lignes completes
 
 3. **Gestion des etats et scoring**
