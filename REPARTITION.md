@@ -15,9 +15,9 @@
 
 | Membre | Theme | Duree | Fichiers principaux |
 |--------|-------|-------|---------------------|
-| Arthur | Architecture generale et logique de jeu | ~10 min | `game.c`, `game.h`, `globals.c`, `main.c` |
-| Walid | Interface graphique et experience utilisateur | ~10 min | `graphics.c`, `audio.c`, `screens.c`, `ui_components.c` |
-| Nathan | Reseau et persistance des donnees | ~10 min | `server_main.c`, `net_client.c`, `save_system.c` |
+| Walid | Architecture generale et logique de jeu | ~10 min | `game.c`, `game.h`, `globals.c`, `main.c` |
+| Nathan | Interface graphique et experience utilisateur | ~10 min | `graphics.c`, `audio.c`, `screens.c`, `ui_components.c` |
+| Arthur | Reseau et persistance des donnees | ~10 min | `server_main.c`, `net_client.c`, `save_system.c` |
 
 ---
 
