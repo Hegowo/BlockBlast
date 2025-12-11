@@ -150,7 +150,7 @@
 
 ## Questions potentielles du professeur
 
-### Questions pour Arthur (Architecture et logique)
+### Questions pour Walid (Architecture et logique)
 
 1. **Pourquoi avoir choisi une architecture client-serveur plutot qu'un jeu local uniquement ?**
    - Reponse attendue : Permet le multijoueur en reseau, separation des responsabilites, evolutivite
@@ -170,7 +170,7 @@
 6. **Comment est calcule le score ?**
    - Reponse attendue : Points par cellule placee + bonus multiplicateur pour lignes multiples
 
-### Questions pour Walid (Graphique et UX)
+### Questions pour Nathan (Graphique et UX)
 
 7. **Pourquoi avoir choisi SDL 1.2 plutot que SDL 2 ou une autre bibliotheque ?**
    - Reponse attendue : Simplicite, bonne documentation, suffisant pour un jeu 2D, compatibilite
@@ -190,7 +190,7 @@
 12. **Comment est gere le rafraichissement de l'ecran ?**
     - Reponse attendue : Double buffering avec SDL_Flip, redessin complet a chaque frame
 
-### Questions pour Nathan (Reseau et donnees)
+### Questions pour Arthur (Reseau et donnees)
 
 13. **Pourquoi TCP plutot qu'UDP pour le multijoueur ?**
     - Reponse attendue : Fiabilite des donnees, ordre garanti, pas de gestion de perte de paquets a implementer
