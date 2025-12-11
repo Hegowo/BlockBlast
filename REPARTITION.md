@@ -5,7 +5,7 @@
 | Information | Details |
 |-------------|---------|
 | **Projet** | BlockBlast - Jeu de puzzle multijoueur |
-| **Equipe** | Arthur, Walid, Nathan |
+| **Equipe** | Walid, Nathan, Arthur |
 | **Duree totale** | 15 minutes |
 | **Format** | 3 parties de ~5 minutes chacune |
 
@@ -13,60 +13,22 @@
 
 ## Tableau de repartition
 
-| Membre | Theme | Duree | Fichiers principaux |
-|--------|-------|-------|---------------------|
-| Arthur | Architecture generale et logique de jeu | ~10 min | `game.c`, `game.h`, `globals.c`, `main.c` |
-| Walid | Interface graphique et experience utilisateur | ~10 min | `graphics.c`, `audio.c`, `screens.c`, `ui_components.c` |
-| Nathan | Reseau et persistance des donnees | ~10 min | `server_main.c`, `net_client.c`, `save_system.c` |
+| Ordre | Membre | Theme | Duree | Fichiers principaux |
+|-------|--------|-------|-------|---------------------|
+| 1 | Walid | Interface graphique et experience utilisateur | ~5 min | `graphics.c`, `audio.c`, `screens.c`, `ui_components.c` |
+| 2 | Nathan | Reseau et persistance des donnees | ~5 min | `server_main.c`, `net_client.c`, `save_system.c` |
+| 3 | Arthur | Architecture generale et logique de jeu | ~5 min | `game.c`, `game.h`, `globals.c`, `main.c` |
 
 ---
 
-## Partie 1 - Arthur (~10 min)
-
-### Theme : Architecture generale et logique de jeu
-
-#### Points a aborder
-
-1. **Presentation du projet**
-   - Concept du jeu BlockBlast (inspire de Block Blast/Tetris)
-   - Objectif : placer des pieces sur une grille 8x8 et completer des lignes
-   - Modes de jeu : Solo classique, Solo temps limite, Multijoueur
-
-2. **Architecture modulaire**
-   - Separation claire client/serveur
-   - Organisation des fichiers sources :
-     - `client/` : tout le code cote joueur
-     - `server/` : serveur multijoueur independant
-   - Avantages de cette architecture (maintenabilite, reutilisabilite)
-
-3. **Logique de jeu**
-   - Structure de la grille 8x8 (`int grid[GRID_SIZE][GRID_SIZE]`)
-   - Systeme de pieces : 19 formes differentes definies dans `PIECES[]`
-   - Detection de placement valide (`can_place_piece`)
-   - Detection et suppression des lignes completes (`check_and_clear_lines`)
-   - Calcul du score (points par cellule + bonus lignes multiples)
-
-4. **Gestion des etats**
-   - Machine a etats pour les ecrans (`GameScreenState`)
-   - Structure `GameState` pour l'etat de la partie
-   - Cycle de jeu : selection piece -> placement -> verification -> score
-
-#### Fichiers a connaitre
-- `client/game.c` : logique de jeu
-- `client/game.h` : structures et constantes
-- `client/globals.c` : variables globales
-- `client/main.c` : boucle principale
-
----
-
-## Partie 2 - Walid (~10 min)
+## Partie 1 - Walid (~5 min)
 
 ### Theme : Interface graphique et experience utilisateur
 
 #### Points a aborder
 
 1. **Presentation du projet et SDL 1.2**
-   - Presentation rapide du jeu BlockBlast
+   - Presentation rapide du jeu BlockBlast (concept, regles)
    - Pourquoi SDL 1.2 (simplicite, documentation, compatibilite)
    - Initialisation de la fenetre (800x600)
 
@@ -91,7 +53,7 @@
 
 ---
 
-## Partie 3 - Nathan (~10 min)
+## Partie 2 - Nathan (~5 min)
 
 ### Theme : Reseau et persistance des donnees
 
@@ -154,26 +116,6 @@
 
 ## Questions potentielles du professeur
 
-### Questions pour Arthur (Architecture et logique)
-
-1. **Pourquoi avoir choisi une architecture client-serveur plutot qu'un jeu local uniquement ?**
-   - Reponse attendue : Permet le multijoueur en reseau, separation des responsabilites, evolutivite
-
-2. **Comment fonctionne la detection des lignes completes ?**
-   - Reponse attendue : Parcours de chaque ligne/colonne, verification si toutes les cellules sont occupees, suppression et decalage
-
-3. **Quelle est la complexite algorithmique de la verification de placement d'une piece ?**
-   - Reponse attendue : O(n) ou n est le nombre de cellules de la piece (maximum 5)
-
-4. **Comment gerez-vous le cas ou le joueur ne peut plus placer aucune piece ?**
-   - Reponse attendue : Fonction `check_valid_moves_exist` qui teste toutes les pieces sur toutes les positions
-
-5. **Pourquoi utiliser une grille de taille fixe 8x8 ?**
-   - Reponse attendue : Standard du jeu BlockBlast original, equilibre entre complexite et jouabilite
-
-6. **Comment est calcule le score ?**
-   - Reponse attendue : Points par cellule placee + bonus multiplicateur pour lignes multiples
-
 ### Questions pour Walid (Graphique et UX)
 
 1. **Pourquoi avoir choisi SDL 1.2 plutot que SDL 2 ou une autre bibliotheque ?**
@@ -191,7 +133,7 @@
 5. **Comment est gere le rafraichissement de l'ecran ?**
    - Reponse attendue : Double buffering avec SDL_Flip, redessin complet a chaque frame
 
-### Questions pour Arthur (Reseau et donnees)
+### Questions pour Nathan (Reseau et donnees)
 
 6. **Pourquoi TCP plutot qu'UDP pour le multijoueur ?**
    - Reponse attendue : Fiabilite des donnees, ordre garanti, pas de gestion de perte de paquets a implementer
@@ -274,11 +216,11 @@
 
 | Temps | Action |
 |-------|--------|
-| 0:00 - 0:30 | Introduction generale (Arthur) |
-| 0:30 - 10:00 | Partie 1 - Arthur |
-| 10:00 - 10:30 | Transition + Demo rapide |
-| 10:30 - 20:00 | Partie 2 - Walid |
-| 20:00 - 20:30 | Transition |
-| 20:30 - 30:00 | Partie 3 - Nathan |
-| 30:00+ | Questions du professeur |
+| 0:00 - 0:30 | Introduction (Walid presente le projet) |
+| 0:30 - 5:00 | Partie 1 - Walid (Graphique/Audio) |
+| 5:00 - 5:15 | Transition |
+| 5:15 - 10:00 | Partie 2 - Nathan (Reseau/Donnees) |
+| 10:00 - 10:15 | Transition |
+| 10:15 - 15:00 | Partie 3 - Arthur (Architecture/Logique) |
+| 15:00+ | Questions du professeur |
 
