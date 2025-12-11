@@ -83,7 +83,10 @@ foreach ($Asset in $Assets) {
             $TotalSize += $FileSize
         } else {
             Write-Host "[ECHEC]" -ForegroundColor Red
+            Write-Host "[ERREUR] Echec de la conversion de $Path" -ForegroundColor Red
             Write-Host $result
+            Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
+            exit 1
         }
     }
     else {

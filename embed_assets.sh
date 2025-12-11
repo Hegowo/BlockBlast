@@ -26,7 +26,6 @@ if [ ! -d "tools" ]; then
     mkdir -p tools
 fi
 
-# Compiler bin2c si nécessaire
 if [ ! -f "$BIN2C_EXE" ] || [ "$BIN2C_SRC" -nt "$BIN2C_EXE" ]; then
     echo "Compilation de l'outil bin2c..."
     if gcc -O2 "$BIN2C_SRC" -o "$BIN2C_EXE" 2>&1; then
@@ -88,6 +87,9 @@ extern const size_t ${NAME}_size;
             TOTAL_SIZE=$((TOTAL_SIZE + FILE_SIZE))
         else
             echo "[ECHEC]"
+            echo "[ERREUR] Echec de la conversion de $ASSET_PATH" >&2
+            rm -rf "$TEMP_DIR"
+            exit 1
         fi
     else
         echo "[IGNORE] $ASSET_PATH (non trouve)"
